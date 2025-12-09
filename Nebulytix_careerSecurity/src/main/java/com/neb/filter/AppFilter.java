@@ -1,6 +1,7 @@
 package com.neb.filter;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,38 +19,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-//@Component
-//public class AppFilter extends OncePerRequestFilter {
-//
-//	 
-//	   @Autowired
-//	    private UsersService usersService;
-//	    
-//	    @Autowired
-//	    private JwtService jwtService;
-//
-//	    @Override
-//	    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-//
-//	        String authHeader = request.getHeader("Authorization");
-//	        String token = null;
-//	        String username = null;
-//	        if(authHeader != null && authHeader.startsWith("Bearer ")){
-//	            token = authHeader.substring(7);
-//	            username = jwtService.extractUsername(token);
-//	        }
-//
-//	        if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
-//	            UserDetails userDetails = usersService.loadUserByUsername(username);
-//	            if(jwtService.validateToken(token, userDetails)){
-//	                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-//	                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-//	                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-//	            }
-//	        }
-//	        filterChain.doFilter(request, response);
-//	    }	
-//}
 @Component
 public class AppFilter extends OncePerRequestFilter {
 
@@ -59,6 +28,14 @@ public class AppFilter extends OncePerRequestFilter {
     @Autowired
     private JwtService jwtService;
 
+    private static final List<String> PUBLIC_URLS = List.of(
+            "/api/auth/login",
+            "/api/auth/refresh-token",
+            "/api/auth/register",
+            "/swagger-ui",
+            "/v3/api-docs"
+    );
+    
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -67,45 +44,49 @@ public class AppFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // Skip these endpoints from JWT validation
-        if (path.contains("/api/auth/login") ||
-            path.contains("/api/auth/refresh-token") ||
-            path.contains("/api/auth/logout")) {
+        // Allow CORS preflight requests
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
 
+        // Skip public URLs (login, refresh, register ...)
+        if (PUBLIC_URLS.stream().anyMatch(path::startsWith)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String authHeader = request.getHeader("Authorization");
+        // Extract token
+        final String authHeader = request.getHeader("Authorization");
         String token = null;
         String username = null;
 
         try {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7);
-                username = jwtService.extractUsername(token); // may throw exceptions
+                username = jwtService.extractUsername(token);
             }
         } catch (Exception ex) {
-            // token invalid → continue without authentication
+            // Invalid token — do NOT authenticate, but also do not break request;
+            // the request will be rejected later by Spring Security because it requires authentication.
             filterChain.doFilter(request, response);
             return;
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = usersService.loadUserByUsername(username);
-
             if (jwtService.validateToken(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken =
+                UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities());
-
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
 
         filterChain.doFilter(request, response);
     }
 }
-

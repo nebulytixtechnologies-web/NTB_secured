@@ -19,10 +19,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.neb.constants.WorkStatus;
 import com.neb.dto.AddDailyReportRequestDto;
-import com.neb.dto.AddEmployeeRequestDto;
 import com.neb.dto.EmployeeDetailsResponseDto;
 import com.neb.dto.WorkResponseDto;
 import com.neb.dto.employee.AddEmployeeRequest;
+import com.neb.dto.employee.EmployeeProfileDto;
 import com.neb.entity.DailyReport;
 import com.neb.entity.Employee;
 import com.neb.entity.Payslip;
@@ -35,13 +35,14 @@ import com.neb.repo.PayslipRepository;
 import com.neb.repo.UsersRepository;
 import com.neb.repo.WorkRepository;
 import com.neb.service.EmployeeService;
+import com.neb.util.AuthUtils;
 import com.neb.util.PdfGeneratorUtil;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
     @Autowired
-    private EmployeeRepository empRepo;
+    private EmployeeRepository employeeRepository;
     
     @Autowired
     private PayslipRepository payslipRepo;
@@ -71,22 +72,48 @@ public class EmployeeServiceImpl implements EmployeeService {
     
     @Override
 	public Long createEmployee(AddEmployeeRequest empReq, Users user) {
+    	Employee employee = mapper.map(empReq, Employee.class);
+    	employee.setUser(user);
+    	System.out.println(employee);
+    	Employee saveEmployee = employeeRepository.save(employee);
+		return saveEmployee.getId();
+	}
+    
+
+
+	@Override
+	public EmployeeProfileDto getMyProfile() {
 		
-    	
-		return null;
+		// 1. Get logged-in user email
+        String email = AuthUtils.getCurrentUserEmail();
+        if (email == null) throw new RuntimeException("User not authenticated");
+
+        // 2. Fetch user entity
+        Users user = usersRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 3. Fetch employee profile
+        Employee emp = employeeRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new RuntimeException("Employee profile not found"));
+        
+        // 4. Map to DTO
+        EmployeeProfileDto empDetailsDto = mapper.map(emp, EmployeeProfileDto.class);
+        empDetailsDto.setEmail(user.getEmail());
+        
+        return empDetailsDto;
 	}
     
     //Getting employee By ID
     @Override
     public Employee getEmployeeById(Long id) {
-        return empRepo.findById(id).orElseThrow(() -> new CustomeException("Employee not found with id: "+id));
+        return employeeRepository.findById(id).orElseThrow(() -> new CustomeException("Employee not found with id: "+id));
     }
    
 	@Override
 	public Payslip generatePayslip(Long employeeId, String monthYear) throws Exception{
 		
 		
-		Employee emp = empRepo.findById(employeeId)
+		Employee emp = employeeRepository.findById(employeeId)
 	            .orElseThrow(() -> new CustomeException("Employee not found with id: "+employeeId));
 		
 		Payslip p = new Payslip();
@@ -137,12 +164,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         return p;
 	}
 	 // Get employee details by EMAIL
-    public EmployeeDetailsResponseDto getEmployeeByEmail(String email) {
-    	System.out.println(email);
-    	Employee emp = empRepo.findByEmail(email).orElseThrow(()->new CustomeException("Employee not found with email id :"+email));
-    	EmployeeDetailsResponseDto empdetailsDto = mapper.map(emp, EmployeeDetailsResponseDto.class);
-        return empdetailsDto;
-    }
+//    public EmployeeDetailsResponseDto getEmployeeByEmail(String email) {
+//    	System.out.println(email);
+//    	Employee emp = employeeRepository.findByEmail(email).orElseThrow(()->new CustomeException("Employee not found with email id :"+email));
+//    	EmployeeDetailsResponseDto empdetailsDto = mapper.map(emp, EmployeeDetailsResponseDto.class);
+//        return empdetailsDto;
+//    }
   
     public List<Work> getTasksByEmployee(Long employeeId) {
         Employee emp = getEmployeeById(employeeId);
@@ -195,7 +222,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         workRes.setAttachmentUrl(savedWork.getAttachmentUrl());
         workRes.setEmployeeId(savedWork.getEmployee().getId());
         workRes.setEmployeeName(savedWork.getEmployee().getFirstName());
-        workRes.setEmployeeEmail(savedWork.getEmployee().getEmail());
+       // workRes.setEmployeeEmail(savedWork.getEmployee().getEmail());
         
         return workRes ;
     }
@@ -204,7 +231,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public String submitDailyReport(AddDailyReportRequestDto request) {
 	
 		//Employee emp = empRepo.findById(request.getEmployee_id()).orElseThrow(()->new CustomeException("employee not found with id:"+request.getEmployee_id()));
-		Employee emp = empRepo.findById(request.getEmployee_id())
+		Employee emp = employeeRepository.findById(request.getEmployee_id())
 	            .orElseThrow(() -> new CustomeException("employee not found with id: " + request.getEmployee_id()));
 
 	        LocalDate date = request.getReportDate();
@@ -240,7 +267,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	
 	@Override
 	public String uploadProfilePicture(Long employeeId, MultipartFile file) {
-	    Employee emp = empRepo.findById(employeeId)
+	    Employee emp = employeeRepository.findById(employeeId)
 	        .orElseThrow(() -> new CustomeException("employee not found with id: " + employeeId));
 
 	    if (file == null || file.isEmpty()) {
@@ -283,7 +310,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	        // update employee entity
 	        emp.setProfilePictureUrl(publicUrl);
 	        emp.setProfilePicturePath(target.toAbsolutePath().toString());
-	        empRepo.save(emp);
+	        employeeRepository.save(emp);
 
 	        return publicUrl;
 	    } catch (IOException e) {
@@ -294,7 +321,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public boolean deleteProfilePicture(Long employeeId) {
 
-	    Employee emp = empRepo.findById(employeeId)
+	    Employee emp = employeeRepository.findById(employeeId)
 	            .orElseThrow(() -> new RuntimeException("Employee not found"));
 
 	    String imagePath = emp.getProfilePicturePath(); // FULL path (absolute path)
@@ -314,23 +341,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 	    // remove from DB
 	    emp.setProfilePicturePath(null);
 	    emp.setProfilePictureUrl(null); // if you use URLs
-	    empRepo.save(emp);
+	    employeeRepository.save(emp);
 
 	    return true;
-	}
-
-	@Override
-	public Boolean addEmployee(AddEmployeeRequestDto addEmpReq, Long userId,String jobRole) {
-		
-		Users user = usersRepository.findById(userId).orElseThrow(()->new CustomeException("user not found with id"+userId));
-		
-		Employee employee = mapper.map(addEmpReq, Employee.class);
-		employee.setUser(user);
-		employee.setEmail(user.getEmail());
-		
-		Employee savedEmp = empRepo.save(employee);
-		
-	    return savedEmp.getId()!=null;
 	}
 	
 }

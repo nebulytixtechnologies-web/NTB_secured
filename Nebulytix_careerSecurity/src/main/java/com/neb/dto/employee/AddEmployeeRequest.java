@@ -9,7 +9,6 @@ public class AddEmployeeRequest {
 
 	private String firstName;
     private String lastName;
-    private String email;
     private String mobile;
     private String cardNumber;
     private String designation;  

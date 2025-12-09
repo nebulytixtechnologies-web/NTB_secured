@@ -26,6 +26,7 @@ import com.neb.dto.LoginRequestDto;
 import com.neb.dto.PayslipDto;
 import com.neb.dto.ResponseMessage;
 import com.neb.dto.WorkResponseDto;
+import com.neb.dto.employee.EmployeeProfileDto;
 import com.neb.entity.Employee;
 import com.neb.entity.Payslip;
 import com.neb.entity.Work;
@@ -35,9 +36,20 @@ import com.neb.service.EmployeeService;
 @RequestMapping("/api/employee")
 @CrossOrigin(origins = "http://localhost:5173")
 public class EmployeeController {
-	/** Injected service layer dependency for employee operations */
+	
 	@Autowired
 	private EmployeeService employeeService;
+	
+	
+	@GetMapping("/me")
+    public ResponseEntity<ResponseMessage<EmployeeProfileDto>> getMyProfile() {
+
+        EmployeeProfileDto dto = employeeService.getMyProfile();
+
+        return ResponseEntity.ok(
+                new ResponseMessage<>(200, "SUCCESS", "Profile fetched successfully", dto)
+        );
+    }
 	
 	@PostMapping("/payslip/generate")
     public ResponseEntity<PayslipDto> generate(@RequestBody GeneratePayslipRequest request) throws Exception {
@@ -54,17 +66,17 @@ public class EmployeeController {
         return new ResponseMessage<>(HttpStatus.OK.value(), HttpStatus.OK.name(), "Employee fetched successfully", emp);
     }
     
-    @GetMapping("/details/{email}")
-    public ResponseEntity<ResponseMessage<EmployeeDetailsResponseDto>> getEmployeeByEmail(@PathVariable String email) {
-    	EmployeeDetailsResponseDto emp = employeeService.getEmployeeByEmail(email);	
-        if (emp == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ResponseMessage<>(404, "NOT_FOUND", "Employee not found"));
-        }
-        return ResponseEntity.ok(
-                new ResponseMessage<>(200, "OK", "Employee fetched successfully", emp)
-        );
-    }
+//    @GetMapping("/details/{email}")
+//    public ResponseEntity<ResponseMessage<EmployeeDetailsResponseDto>> getEmployeeByEmail(@PathVariable String email) {
+//    	EmployeeDetailsResponseDto emp = employeeService.getEmployeeByEmail(email);	
+//        if (emp == null) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                    .body(new ResponseMessage<>(404, "NOT_FOUND", "Employee not found"));
+//        }
+//        return ResponseEntity.ok(
+//                new ResponseMessage<>(200, "OK", "Employee fetched successfully", emp)
+//        );
+//    }
     
     // Get tasks assigned to employee
     @GetMapping("/tasks/{employeeId}")

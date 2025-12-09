@@ -98,7 +98,7 @@ public class HrServiceImpl implements HrService {
 
         if (updateReq.getFirstName() != null) emp.setFirstName(updateReq.getFirstName());
         if (updateReq.getLastName() != null) emp.setLastName(updateReq.getLastName());
-        if (updateReq.getEmail() != null) emp.setEmail(updateReq.getEmail());
+ //       if (updateReq.getEmail() != null) emp.setEmail(updateReq.getEmail());
         if (updateReq.getMobile() != null) emp.setMobile(updateReq.getMobile());
         if (updateReq.getSalary() != null) emp.setSalary(updateReq.getSalary());
         if (updateReq.getPaidLeaves() != 0) emp.setPaidLeaves(updateReq.getPaidLeaves());

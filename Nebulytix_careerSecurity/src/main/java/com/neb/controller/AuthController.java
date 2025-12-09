@@ -1,103 +1,83 @@
 package com.neb.controller;
 
-import java.util.HashMap;
+
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.neb.entity.RefreshToken;
-import com.neb.entity.Users;
-import com.neb.service.JwtService;
-import com.neb.service.RefreshTokenService;
-import com.neb.service.UsersService;
+import com.neb.dto.ResponseMessage;
+import com.neb.dto.user.AuthResponse;
+import com.neb.dto.user.LoginRequest;
+import com.neb.service.AuthService;
 
 @RestController
 @RequestMapping("/api/auth/")
 public class AuthController {
 
-	@Autowired
-	private UsersService usersService;
-	
-	@Autowired
-	private RefreshTokenService refreshTokenService;
-	
-	@Autowired
-	private JwtService jwtService;
-	
-	@Autowired
-	private AuthenticationManager authManager;
-	
-	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody Users users) {
+    @Autowired
+    private AuthService authService;
 
-	    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(users.getEmail(), users.getPassword());
 
-	    try {
-	        Authentication authenticate = authManager.authenticate(token);
+    // LOGIN ---------------------------------------------------------------------
+    @PostMapping("/login")
+    public ResponseEntity<ResponseMessage<AuthResponse>> login(@RequestBody LoginRequest req) {
 
-	        if (authenticate.isAuthenticated()) {
-	
-	            Users userEntity = usersService.findByEmail(users.getEmail());
+        try {
+            AuthResponse response = authService.login(req);
 
-	            String jwtToken = jwtService.generateToken(users.getEmail());
-	            RefreshToken refreshToken = refreshTokenService.createRefreshToken(userEntity);
+            return ResponseEntity.ok(
+                new ResponseMessage<>(200, "SUCCESS", "Login successful", response)
+            );
 
-	            Map<String, String> tokens = new HashMap<>();
-	            tokens.put("accessToken", jwtToken);
-	            tokens.put("refreshToken", refreshToken.getToken());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ResponseMessage<>(401, "FAILED", e.getMessage()));
+        }
+    }
 
-	            return ResponseEntity.ok(tokens);
-	        }
 
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Credentials");
-	    }
+    // REFRESH TOKEN --------------------------------------------------------------
+    @PostMapping("/refresh-token")
+    public ResponseEntity<ResponseMessage<AuthResponse>> refreshToken(@RequestBody Map<String, String> request) {
 
-	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Credentials");
-	}
-	
-	@PostMapping("/refresh-token")
-	public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
-	    String requestRefreshToken = request.get("refreshToken");
+        try {
+            String refreshToken = request.get("refreshToken");
+            AuthResponse resp = authService.refreshAccessToken(refreshToken);
 
-	    RefreshToken refreshToken = refreshTokenService.findByToken(requestRefreshToken);
+            return ResponseEntity.ok(
+                new ResponseMessage<>(200, "SUCCESS", "Token refreshed successfully", resp)
+            );
 
-	    if (refreshToken == null || refreshTokenService.isTokenExpired(refreshToken)) {
-	        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Refresh token expired or invalid!");
-	    }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ResponseMessage<>(403, "FAILED", e.getMessage()));
+        }
+    }
 
-	    String newAccessToken = jwtService.generateToken(refreshToken.getUser().getEmail());
-	    Map<String, String> tokenResponse = new HashMap<>();
-	    tokenResponse.put("accessToken", newAccessToken);
-	    tokenResponse.put("refreshToken", requestRefreshToken); // keep same refresh token
 
-	    return ResponseEntity.ok(tokenResponse);
-	}
-	
-	@PostMapping("/logout")
-	public ResponseEntity<?> logout(@RequestBody Map<String, String> request) {
-	    String refreshToken = request.get("refreshToken");
-	    RefreshToken tokenEntity = refreshTokenService.findByToken(refreshToken);
+    // LOGOUT ----------------------------------------------------------------------
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/logout")
+    public ResponseEntity<ResponseMessage<String>> logout(@RequestBody Map<String, String> request) {
 
-	    if (tokenEntity != null) {
-	        refreshTokenService.deleteByUser(tokenEntity.getUser());
-	    }
+        try {
+            String refreshToken = request.get("refreshToken");
+            String msg = authService.logout(refreshToken);
 
-	    return ResponseEntity.ok("Logout successful");
-	}
-	
-	@GetMapping("/welcome")
-	public String welcome() {
-		return "welcome to Nebulytix technologies";
-	}
+            return ResponseEntity.ok(
+                new ResponseMessage<>(200, "SUCCESS", msg)
+            );
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ResponseMessage<>(400, "FAILED", e.getMessage()));
+        }
+    }
 }
