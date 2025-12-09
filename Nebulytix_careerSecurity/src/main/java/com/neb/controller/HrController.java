@@ -34,6 +34,7 @@ import com.neb.dto.PayslipDto;
 import com.neb.dto.ResponseMessage;
 import com.neb.dto.UpdateEmployeeRequestDto;
 import com.neb.dto.UpdatePasswordRequestDto;
+import com.neb.dto.employee.EmployeeProfileDto;
 import com.neb.dto.user.RegisterNewUerRequest;
 import com.neb.dto.user.UserDto;
 import com.neb.entity.JobApplication;
@@ -55,6 +56,17 @@ public class HrController {
     
     @Autowired
     private UsersService usersService;
+    
+    @GetMapping("/me")
+    public ResponseEntity<ResponseMessage<EmployeeProfileDto>> getMyProfile() {
+
+        EmployeeProfileDto dto = employeeService.getMyProfile();
+
+        return ResponseEntity.ok(
+                new ResponseMessage<>(200, "SUCCESS", "HR profile fetched successfully", dto)
+        );
+    }
+    
 
 //    @GetMapping("/getEmpList")
 //    public ResponseEntity<ResponseMessage<List<EmployeeDetailsResponseDto>>> getEmployeeList() {
@@ -86,6 +98,8 @@ public class HrController {
 //		return new ResponseEntity<>("failed", HttpStatus.INTERNAL_SERVER_ERROR);
 //	}
 //	
+    
+   
     @GetMapping("/getEmp/{id}")
     public ResponseEntity<ResponseMessage<EmployeeDetailsResponseDto>> getEmployee(@PathVariable Long id) {
         EmployeeDetailsResponseDto employee = service.getEmployee(id);

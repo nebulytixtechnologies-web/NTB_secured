@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +36,7 @@ import com.neb.dto.PayslipDto;
 import com.neb.dto.ResponseMessage;
 import com.neb.dto.UpdateEmployeeRequestDto;
 import com.neb.dto.WorkResponseDto;
+import com.neb.dto.user.AdminProfileDto;
 import com.neb.dto.user.RegisterNewClientRequest;
 import com.neb.dto.user.RegisterNewUerRequest;
 import com.neb.dto.user.UserDto;
@@ -83,6 +85,17 @@ public class AdminController {
         adminService.createClient(req);
         return ResponseEntity.ok(
                 new ResponseMessage(200, "OK", "Client created successfully")
+        );
+    }
+    
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/me")
+    public ResponseEntity<ResponseMessage<AdminProfileDto>> getMyProfile() {
+
+        AdminProfileDto dto = adminService.getMyProfile();
+
+        return ResponseEntity.ok(
+                new ResponseMessage<>(200, "SUCCESS", "Admin profile fetched", dto)
         );
     }
 	
@@ -213,35 +226,5 @@ public class AdminController {
 	             updatedHr
 	         )
 	     );
-	 }
-	    
+	 } 
 }
-
-/*
- * @Service
-@Transactional
-public class AdminService {
-
-    @Autowired
-    private UsersService usersService;
-
-    @Autowired
-    private EmployeeService employeeService;
-
-    @Autowired
-    private ClientService clientService;
-
-    public void createUser(RegisterUserRequest req) {
-
-        Users user = usersService.createUser(req.getUserDto(), req.getRoles());
-
-        // If CLIENT → create Client profile instead of Employee
-        if (req.getRoles().contains(Role.ROLE_CLIENT)) {
-            clientService.createClientProfile(user, req.getEmpReq());
-        } else {
-            employeeService.createEmployeeProfile(user, req.getEmpReq());
-        }
-    }
-}
-
- */

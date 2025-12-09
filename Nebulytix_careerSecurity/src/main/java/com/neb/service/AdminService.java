@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.neb.dto.*;
+import com.neb.dto.user.AdminProfileDto;
 import com.neb.dto.user.RegisterNewClientRequest;
 import com.neb.dto.user.RegisterNewUerRequest;
 import com.neb.dto.user.UserDto;
@@ -18,7 +19,8 @@ public interface AdminService {
 	public Long createAdmin(UserDto userReq);
 	public Long createEmployee(RegisterNewUerRequest empReq);
 	public Long createClient(RegisterNewClientRequest clientReq);
-
+	public AdminProfileDto getMyProfile();
+	
     // For assigning new work to an employee
     public String assignWork(AddWorkRequestDto request,MultipartFile file);
 
@@ -35,7 +37,6 @@ public interface AdminService {
     public String deleteHr(Long id);
   
     public byte[] generateDailyReport(LocalDate date)throws Exception;
-   // public Page<EmployeeDetailsResponseDto> getHrList(int page, int size, String sort);
     public EmployeeDetailsResponseDto updateHrDetails(Long id, UpdateEmployeeRequestDto dto);
 
 

@@ -24,6 +24,7 @@ import com.neb.dto.EmployeeDetailsResponseDto;
 import com.neb.dto.UpdateEmployeeRequestDto;
 import com.neb.dto.UpdateEmployeeResponseDto;
 import com.neb.dto.WorkResponseDto;
+import com.neb.dto.user.AdminProfileDto;
 import com.neb.dto.user.RegisterNewClientRequest;
 import com.neb.dto.user.RegisterNewUerRequest;
 import com.neb.dto.user.UserDto;
@@ -31,12 +32,18 @@ import com.neb.entity.Employee;
 import com.neb.entity.Users;
 import com.neb.entity.Work;
 import com.neb.exception.CustomeException;
-import com.neb.exception.HrNotFoundException;
+import com.neb.exception.ResourceNotFoundException;
 import com.neb.repo.EmployeeRepository;
+import com.neb.repo.UsersRepository;
 import com.neb.repo.WorkRepository;
 import com.neb.service.AdminService;
+import com.neb.service.ClientService;
+import com.neb.service.EmployeeService;
 import com.neb.service.UsersService;
+import com.neb.util.AuthUtils;
 import com.neb.util.ReportGeneratorPdf;
+
+import jakarta.transaction.Transactional;
 
 
 @Service
@@ -44,6 +51,9 @@ public class AdminServiceImpl implements AdminService{
 
 	@Autowired
     private EmployeeRepository empRepo;
+	
+	@Autowired
+	private EmployeeService employeeService;
 	
 	@Autowired
     private WorkRepository workRepo;
@@ -54,12 +64,19 @@ public class AdminServiceImpl implements AdminService{
     @Autowired
     private UsersService usersService;
     
+    @Autowired
+    private ClientService clientService;
+    
+    @Autowired
+    private UsersRepository usersRepository;
+    
     @Value("${task.attachment}")
     private String uploadDir;
     
     
     
     @Override
+    @Transactional
 	public Long createAdmin(UserDto userReq) {
 		
     	Users user = usersService.createUser(userReq);
@@ -67,21 +84,52 @@ public class AdminServiceImpl implements AdminService{
 	}
 
 	@Override
+	@Transactional
 	public Long createEmployee(RegisterNewUerRequest empReq) {
 		
 		Users user = usersService.createUser(empReq.getUserDto());
 		
 		if(user!=null) {
 			
-			
+			Long employeeId = employeeService.createEmployee(empReq.getEmpReq(), user);
+			if(employeeId!=null) {
+				return user.getId();
+			}
 		}
 		return null;
 	}
 
 	@Override
+	@Transactional
 	public Long createClient(RegisterNewClientRequest clientReq) {
-		// TODO Auto-generated method stub
+		
+		Users user = usersService.createUser(clientReq.getUserDto());
+		
+		if(user!=null) {
+			Long clientId = clientService.createClient(clientReq.getClientReq(), user);
+			if(clientId!=null) {
+				return user.getId();
+			}
+		}
+		
 		return null;
+	}
+	
+	@Override
+	public AdminProfileDto getMyProfile() {
+		
+		String email = AuthUtils.getCurrentUserEmail();
+        if (email == null) throw new RuntimeException("Not authenticated");
+
+        Users user = usersRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Admin not found"));
+
+        AdminProfileDto dto = new AdminProfileDto();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setEnabled(user.isEnabled());
+
+        return dto;
 	}
     
    
@@ -169,7 +217,7 @@ public class AdminServiceImpl implements AdminService{
     	
     	List<Work> workListByEmployeeId = workRepo.findByEmployeeId(empId);
     	if(workListByEmployeeId==null) {
-    		throw new CustomeException("works not found for employee with employee id :"+empId);
+    		throw new ResourceNotFoundException("works not found for employee with employee id :"+empId);
     	}
         return workListByEmployeeId
                 .stream()
@@ -190,7 +238,7 @@ public class AdminServiceImpl implements AdminService{
         dto.setSubmittedDate(work.getSubmittedDate());
         dto.setEmployeeId(work.getEmployee().getId());
         dto.setEmployeeName(work.getEmployee().getFirstName() + " " + work.getEmployee().getLastName());
-        dto.setEmployeeEmail(work.getEmployee().getEmail());
+        //dto.setEmployeeEmail(work.getEmployee().getEmail());
         dto.setAttachmentUrl(work.getAttachmentUrl());
         dto.setReportAttachmentUrl(work.getReportAttachmentUrl());
         return dto;
@@ -205,56 +253,18 @@ public class AdminServiceImpl implements AdminService{
 			return "Hr deleted with id:"+id;
 		}
 		else {
-			throw new CustomeException("Hr not found with id :"+id);
+			throw new ResourceNotFoundException("Hr not found with id :"+id);
 		}
 	}
 
 	@Override
 	public EmployeeDetailsResponseDto getEmployee(Long id) {
 
-		Employee emp = empRepo.findById(id).orElseThrow(()->new CustomeException("Employee not found wuith id :"+id));
+		Employee emp = empRepo.findById(id).orElseThrow(()->new ResourceNotFoundException("Employee not found wuith id :"+id));
 		return mapper.map(emp, EmployeeDetailsResponseDto.class);	
 	}
-//	@Override
-//	public Page<EmployeeDetailsResponseDto> getHrList(int page, int size, String sort) {
-//
-//	    Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-//
-//	    Page<Employee> hrPage = empRepo.findAllHrs(pageable);
-//
-//	    if (hrPage.isEmpty()) {
-//	        throw new HrNotFoundException("No HR records found");
-//	    }
-//
-//	    return hrPage.map(e -> {
-//	        EmployeeDetailsResponseDto dto = new EmployeeDetailsResponseDto();
-//
-//	        dto.setId(e.getId());
-//	        dto.setFirstName(e.getFirstName());
-//	        dto.setLastName(e.getLastName());
-//	        dto.setEmail(e.getEmail());
-//	        dto.setMobile(e.getMobile());
-//	        dto.setCardNumber(e.getCardNumber());
-//	        dto.setJobRole(e.getJobRole());
-//	        dto.setDomain(e.getDomain());
-//	        dto.setGender(e.getGender());
-//	        dto.setJoiningDate(e.getJoiningDate());
-//	        dto.setSalary(e.getSalary());
-//	        dto.setDaysPresent(e.getDaysPresent());
-//	        dto.setPaidLeaves(e.getPaidLeaves());
-//	       
-//	        dto.setBankAccountNumber(e.getBankAccountNumber());
-//	        dto.setIfscCode(e.getIfscCode());
-//	        dto.setBankName(e.getBankName());
-//	        dto.setPfNumber(e.getPfNumber());
-//	        dto.setPanNumber(e.getPanNumber());
-//	        dto.setUanNumber(e.getUanNumber());
-//	        dto.setEpsNumber(e.getEpsNumber());
-//	        dto.setEsiNumber(e.getEsiNumber());
-//
-//	        return dto;
-//	    });
-//	}
+
+
 	@Override
 	public byte[] generateDailyReport(LocalDate date) throws Exception {
 	    List<Work> works = workRepo.findBySubmittedDate(date);
@@ -269,7 +279,7 @@ public class AdminServiceImpl implements AdminService{
 	public EmployeeDetailsResponseDto updateHrDetails(Long id, UpdateEmployeeRequestDto updateReq) {
 
 	    Employee hr = empRepo.findById(id)
-	            .orElseThrow(() -> new CustomeException("HR not found with id: " + id));
+	            .orElseThrow(() -> new ResourceNotFoundException("HR not found with id: " + id));
 
 
 	    // -------- BASIC DETAILS --------
@@ -279,8 +289,8 @@ public class AdminServiceImpl implements AdminService{
 	    if (updateReq.getLastName() != null && !updateReq.getLastName().isEmpty())
 	        hr.setLastName(updateReq.getLastName());
 
-	    if (updateReq.getEmail() != null && !updateReq.getEmail().isEmpty())
-	        hr.setEmail(updateReq.getEmail());
+//	    if (updateReq.getEmail() != null && !updateReq.getEmail().isEmpty())
+//	        hr.setEmail(updateReq.getEmail());
 
 	    if (updateReq.getMobile() != null && !updateReq.getMobile().isEmpty())
 	        hr.setMobile(updateReq.getMobile());
