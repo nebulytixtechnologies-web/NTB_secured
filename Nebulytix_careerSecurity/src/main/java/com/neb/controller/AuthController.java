@@ -40,10 +40,11 @@ public class AuthController {
             Cookie cookie = new Cookie("refreshToken",authResponse.getRefreshToken());
             
             cookie.setHttpOnly(true);
-            cookie.setSecure(true); // only if using HTTPS
+            cookie.setSecure(false); // only if using HTTPS
             cookie.setPath("/");    // set path according to your API routes
             // optionally set SameSite, max-age etc:
             cookie.setMaxAge(7 * 24 * 60 * 60); // e.g. 7 days
+            cookie.setAttribute("SameSite", "Lax");
             response.addCookie(cookie);
 
             
@@ -86,7 +87,7 @@ public class AuthController {
             RefreshTokenResponse refreshResponse = new RefreshTokenResponse();
             refreshResponse.setAccessToken(resp.getAccessToken());
             
-            
+            System.out.println("refresh-token successfuly created");
             return ResponseEntity.ok(
                 new ResponseMessage<>(200, "SUCCESS", "Token refreshed successfully", refreshResponse)
             );
@@ -104,6 +105,7 @@ public class AuthController {
     public ResponseEntity<ResponseMessage<String>> logout(HttpServletRequest request, HttpServletResponse response) {
         
     	String refreshToken = null;
+    	System.out.println(request.getCookies());
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if ("refreshToken".equals(cookie.getName())) {
@@ -122,10 +124,20 @@ public class AuthController {
             // clear cookie
             Cookie deleteCookie = new Cookie("refreshToken", null);
             deleteCookie.setHttpOnly(true);
-            deleteCookie.setSecure(true);
+            deleteCookie.setSecure(false);
             deleteCookie.setPath("/");
             deleteCookie.setMaxAge(0);
+            deleteCookie.setAttribute("SameSite", "Lax");
             response.addCookie(deleteCookie);
+            
+//            Cookie deleteCookie = new Cookie("refreshToken", null);
+//            deleteCookie.setHttpOnly(true);
+//            deleteCookie.setSecure(true);
+//            deleteCookie.setPath("/");
+//            deleteCookie.setMaxAge(0);
+//            deleteCookie.setAttribute("SameSite", "None");
+//            response.addCookie(deleteCookie);
+            System.out.println("logout successful");
 
             return ResponseEntity.ok(new ResponseMessage<>(200, "SUCCESS", msg));
         } catch (Exception e) {
@@ -133,4 +145,6 @@ public class AuthController {
                 .body(new ResponseMessage<>(400, "FAILED", e.getMessage()));
         }
     }
+    
+    
 }

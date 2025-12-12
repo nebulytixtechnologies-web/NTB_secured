@@ -53,11 +53,14 @@ public class AppSecurityConfig {
 	        .authenticationProvider(authProvider())
 	        .authorizeHttpRequests(req -> req
 	                // allow only specific auth endpoints (login/refresh/register) publicly
-	                .requestMatchers("/api/auth/login").permitAll()
+	                .requestMatchers("/api/auth/login","/api/admin/create-admin").permitAll()
 	                .requestMatchers("/api/auth/refresh-token").permitAll()
 	                .requestMatchers("/api/auth/register").permitAll()
 	                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-	                .anyRequest().authenticated()
+	                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                    .requestMatchers("/api/hr/**").hasAnyRole("HR", "ADMIN")//"ROLE_ADMIN","ROLE_EMPLOYEE","ROLE_HR"
+                    .requestMatchers("/api/employee/**").hasAnyRole("EMPLOYEE")
+                    .anyRequest().authenticated()
 	        )
 	        .addFilterBefore(appFilter, UsernamePasswordAuthenticationFilter.class);
 

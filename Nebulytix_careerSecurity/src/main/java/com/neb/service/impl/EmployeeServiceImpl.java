@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.neb.constants.WorkStatus;
 import com.neb.dto.AddDailyReportRequestDto;
 import com.neb.dto.EmployeeDetailsResponseDto;
+import com.neb.dto.EmployeeResponseDto;
 import com.neb.dto.WorkResponseDto;
 import com.neb.dto.employee.AddEmployeeRequest;
 import com.neb.dto.employee.EmployeeProfileDto;
@@ -344,6 +346,30 @@ public class EmployeeServiceImpl implements EmployeeService {
 	    employeeRepository.save(emp);
 
 	    return true;
+	}
+
+
+
+	@Override
+	public List<EmployeeDetailsResponseDto> getAllHrAndEmployee() {
+		 List<Employee> employees = employeeRepository.findAllHrAndEmployee();
+		 List<EmployeeDetailsResponseDto> allHrAndEmployee = employees.stream()
+			        .map(emp -> mapper.map(emp, EmployeeDetailsResponseDto.class))
+			        .collect(Collectors.toList());
+
+		 return allHrAndEmployee;
+	}
+
+
+
+	@Override
+	public List<EmployeeDetailsResponseDto> getAllOnlyEmployee() {
+		 List<Employee> employees = employeeRepository.findAllOnlyEmployees();
+		 List<EmployeeDetailsResponseDto> allEmployee = employees.stream()
+			        .map(emp -> mapper.map(emp, EmployeeDetailsResponseDto.class))
+			        .collect(Collectors.toList());
+
+		 return allEmployee;
 	}
 	
 }

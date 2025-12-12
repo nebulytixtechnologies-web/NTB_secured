@@ -39,6 +39,7 @@ import com.neb.dto.user.RegisterNewUerRequest;
 import com.neb.dto.user.UserDto;
 import com.neb.entity.JobApplication;
 import com.neb.entity.Payslip;
+import com.neb.service.AdminService;
 import com.neb.service.EmployeeService;
 import com.neb.service.HrService;
 import com.neb.service.UsersService;
@@ -57,6 +58,9 @@ public class HrController {
     @Autowired
     private UsersService usersService;
     
+    @Autowired
+    private AdminService adminService;
+    
     @GetMapping("/me")
     public ResponseEntity<ResponseMessage<EmployeeProfileDto>> getMyProfile() {
 
@@ -67,6 +71,15 @@ public class HrController {
         );
     }
     
+    @PostMapping("/create-employee")
+    public ResponseEntity<ResponseMessage> createEmployee(@RequestBody RegisterNewUerRequest req) {
+
+        adminService.createEmployee(req);
+
+        return ResponseEntity.ok(
+            new ResponseMessage(200, "OK", "User created successfully")
+        );
+    }
 
 //    @GetMapping("/getEmpList")
 //    public ResponseEntity<ResponseMessage<List<EmployeeDetailsResponseDto>>> getEmployeeList() {

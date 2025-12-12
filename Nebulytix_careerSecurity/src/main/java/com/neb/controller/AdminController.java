@@ -1,6 +1,7 @@
 //admin controller
 package com.neb.controller;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -107,21 +108,21 @@ public class AdminController {
 //		
 //		return ResponseEntity.ok(new ResponseMessage<List<EmployeeDetailsResponseDto>>(HttpStatus.OK.value(), HttpStatus.OK.name(), "All Employee fetched successfully", employeeList));
 //	}
-//	 @PostMapping(value = "/work/add", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-//	 
-//	    public ResponseEntity<ResponseMessage<String>> addWork(
-//	        @RequestPart("dto") AddWorkRequestDto dto,
-//	        @RequestPart(value = "file", required = false) MultipartFile file
-//	    ) throws IOException {
-//
-//	        String workRes = adminService.assignWork(dto, file);
-//
-//	        return ResponseEntity.ok(
-//	            new ResponseMessage<>(HttpStatus.OK.value(), HttpStatus.OK.name(), "Work added successfully", workRes)
-//	        );
-//	    }
-//        
-//	    
+	 @PostMapping(value = "/work/add", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+	
+	    public ResponseEntity<ResponseMessage<String>> addWork(
+	        @RequestPart("dto") AddWorkRequestDto dto,
+	        @RequestPart(value = "file", required = false) MultipartFile file
+	    ) throws IOException {
+
+	        String workRes = adminService.assignWork(dto, file);
+
+	        return ResponseEntity.ok(
+	            new ResponseMessage<>(HttpStatus.OK.value(), HttpStatus.OK.name(), "Work added successfully", workRes)
+	        );
+	    }
+        
+	    
 	    // ✅ Get all Work of employee
 	    @GetMapping("/getAllWork/{empId}")
 	    public ResponseEntity<ResponseMessage<List<WorkResponseDto>>> getAllWork(@PathVariable Long empId) {
