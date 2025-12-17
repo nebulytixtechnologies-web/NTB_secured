@@ -23,6 +23,7 @@ import com.neb.dto.EmployeeDetailsResponseDto;
 import com.neb.dto.UpdateEmployeeRequestDto;
 import com.neb.dto.WorkResponseDto;
 import com.neb.dto.client.ClientDto;
+import com.neb.dto.client.ClientProfileDto;
 import com.neb.dto.employee.EmployeeProfileDto;
 import com.neb.dto.user.AdminProfileDto;
 import com.neb.dto.user.RegisterNewClientRequest;
@@ -438,8 +439,6 @@ public class AdminServiceImpl implements AdminService{
 			            dto.setJoiningDate(emp.getJoiningDate());
 			            dto.setSalary(emp.getSalary());
 			            dto.setProfilePictureUrl(emp.getProfilePictureUrl());
-
-			            // If mobile is in Employee
 			            dto.setMobile(emp.getMobile());
 
 			            // From User entity
@@ -468,8 +467,6 @@ public class AdminServiceImpl implements AdminService{
 			            dto.setJoiningDate(emp.getJoiningDate());
 			            dto.setSalary(emp.getSalary());
 			            dto.setProfilePictureUrl(emp.getProfilePictureUrl());
-
-			            // If mobile is in Employee
 			            dto.setMobile(emp.getMobile());
 
 			            // From User entity
@@ -482,6 +479,62 @@ public class AdminServiceImpl implements AdminService{
 			        .collect(Collectors.toList());
 	}
 
-	   
-	
+	@Override
+	public List<EmployeeProfileDto> getOnlyManager() 
+	{ 
+		List<Employee> employees = empRepo.findOnlyManager();
+	 
+	 return employees.stream()
+		        .map(emp -> {
+		            EmployeeProfileDto dto = new EmployeeProfileDto();
+		            dto.setId(emp.getId());
+		            dto.setFirstName(emp.getFirstName());
+		            dto.setLastName(emp.getLastName());
+		            dto.setDesignation(emp.getDesignation());
+		            dto.setDepartment(emp.getDepartment());
+		            dto.setGender(emp.getGender());
+		            dto.setJoiningDate(emp.getJoiningDate());
+		            dto.setSalary(emp.getSalary());
+		            dto.setProfilePictureUrl(emp.getProfilePictureUrl());
+
+		            // If mobile is in Employee
+		            dto.setMobile(emp.getMobile());
+
+		            // From User entity
+		            if (emp.getUser() != null) {
+		                dto.setEmail(emp.getUser().getEmail());
+		            }
+
+		            return dto;
+		        })
+		        .collect(Collectors.toList());
+		
 	}
+
+	@Override
+	public List<ClientProfileDto> getOnlyClient() 
+	{
+		List<Client> clients = empRepo.findOnlyClients();
+
+	    return clients.stream()
+	        .map(client -> {
+	            ClientProfileDto dto = new ClientProfileDto();
+	            dto.setId(client.getId());
+	            dto.setCompanyName(client.getCompanyName());
+	            dto.setContactPerson(client.getContactPerson());
+	            dto.setContactEmail(client.getContactEmail());
+	            dto.setPhone(client.getPhone());
+	            dto.setAlternatePhone(client.getAlternatePhone());
+	            dto.setAddress(client.getAddress());
+	            dto.setWebsite(client.getWebsite());
+	            dto.setIndustryType(client.getIndustryType());
+	            dto.setGstNumber(client.getGstNumber());
+
+	            return dto;
+	        })
+	        .collect(Collectors.toList());
+     
+	}
+
+	
+}

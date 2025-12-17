@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.neb.dto.employee.EmployeeProfileDto;
+import com.neb.entity.Client;
 import com.neb.entity.Employee;
 import com.neb.entity.Users;
 
@@ -35,6 +35,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
                JOIN e.user u
                WHERE com.neb.constants.Role.ROLE_EMPLOYEE MEMBER OF u.roles
                AND com.neb.constants.Role.ROLE_HR NOT MEMBER OF u.roles
+               AND com.neb.constants.Role.ROLE_MANAGER NOT MEMBER OF u.roles
         """)
         List<Employee> findOnlyEmployees();
 
@@ -46,9 +47,28 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
              WHERE com.neb.constants.Role.ROLE_ADMIN MEMBER OF u.roles
               """)
     List<Users> findOnlyAdmin();
+    
     List<Employee> findByProject_Id(Long projectId);
+    
+    @Query("""
+    	    SELECT DISTINCT e
+              FROM Employee e
+              JOIN e.user u
+              WHERE com.neb.constants.Role.ROLE_MANAGER MEMBER OF u.roles
+              AND com.neb.constants.Role.ROLE_CLIENT NOT MEMBER OF u.roles
+    	    """)
+    List<Employee> findOnlyManager();
    
-
+    @Query("""
+    	    SELECT DISTINCT c
+    	    FROM Client c
+    	    JOIN c.user u
+    	    WHERE com.neb.constants.Role.ROLE_CLIENT MEMBER OF u.roles
+    	      AND com.neb.constants.Role.ROLE_ADMIN NOT MEMBER OF u.roles
+    	      AND com.neb.constants.Role.ROLE_HR NOT MEMBER OF u.roles
+    	      AND com.neb.constants.Role.ROLE_MANAGER NOT MEMBER OF u.roles
+    	""")
+    	List<Client> findOnlyClients();
     
     
 }

@@ -39,6 +39,7 @@ import com.neb.dto.UpdateEmployeeRequestDto;
 import com.neb.dto.UpdateProjectRequestDto;
 import com.neb.dto.WorkResponseDto;
 import com.neb.dto.client.ClientDto;
+import com.neb.dto.client.ClientProfileDto;
 import com.neb.dto.employee.EmployeeProfileDto;
 import com.neb.dto.user.AdminProfileDto;
 import com.neb.dto.user.RegisterNewClientRequest;
@@ -245,13 +246,21 @@ public class AdminController {
 	      );
 	    }
 	    
+	    @GetMapping("fetch/manager")
+	    public ResponseEntity<ResponseMessage<List<EmployeeProfileDto>>> getAllManager() {
+	           List<EmployeeProfileDto> allManager = adminService.getOnlyManager();
+    	        return ResponseEntity.ok(
+	              new ResponseMessage<>(200, "OK", "Managers fetched successfully", allManager)
+	      );
+	    }
+	    
 	    // GET /api/admin/fetch/hr
 	    @GetMapping("fetch/hr")
 	    public ResponseEntity<ResponseMessage<List<EmployeeProfileDto>>> getAllHr() {
 	           List<EmployeeProfileDto> allHr = adminService.getOnlyHr();
 //	        return new ResponseMessage<>(HttpStatus.OK.value(), HttpStatus.OK.name(), "Employee and HR fetched successfully", employees);
 	        return ResponseEntity.ok(
-	              new ResponseMessage<>(200, "OK", "Hr fetched successfully", allHr)
+	              new ResponseMessage<>(200, "OK", "Hr's fetched successfully", allHr)
 	      );
 	    }
 	    
@@ -260,7 +269,15 @@ public class AdminController {
 	    public ResponseEntity<ResponseMessage<List<EmployeeProfileDto>>> getAllEmployees() {
 	           List<EmployeeProfileDto> allEmployee = adminService.getOnlyEmployee();
 	          return ResponseEntity.ok(
-	              new ResponseMessage<>(200, "OK", "Employee fetched successfully", allEmployee)
+	              new ResponseMessage<>(200, "OK", "Employees fetched successfully", allEmployee)
+	      );
+	    }
+	    
+	    @GetMapping("fetch/clients")
+	    public ResponseEntity<ResponseMessage<List<ClientProfileDto>>> getAllClients() {
+	          List<ClientProfileDto> allClient = adminService.getOnlyClient();
+	          return ResponseEntity.ok(
+	              new ResponseMessage<>(200, "OK", "Clients fetched successfully", allClient)
 	      );
 	    }
 	    

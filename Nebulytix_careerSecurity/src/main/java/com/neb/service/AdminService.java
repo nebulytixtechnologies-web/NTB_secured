@@ -11,6 +11,7 @@ import com.neb.dto.EmployeeDetailsResponseDto;
 import com.neb.dto.UpdateEmployeeRequestDto;
 import com.neb.dto.WorkResponseDto;
 import com.neb.dto.client.ClientDto;
+import com.neb.dto.client.ClientProfileDto;
 import com.neb.dto.employee.EmployeeProfileDto;
 import com.neb.dto.user.AdminProfileDto;
 import com.neb.dto.user.RegisterNewClientRequest;
@@ -55,5 +56,7 @@ public interface AdminService {
 //    Project addProject(AddProjectRequestDto req);
 	public List<EmployeeProfileDto> getOnlyHr();
 	public List<EmployeeProfileDto> getOnlyEmployee();
+	public List<EmployeeProfileDto> getOnlyManager();
+	public List<ClientProfileDto> getOnlyClient();
 
 }
