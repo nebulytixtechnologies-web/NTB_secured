@@ -35,5 +35,9 @@ public interface EmployeeService {
     public String uploadProfilePicture(Long employeeId, MultipartFile file);
     
     boolean deleteProfilePicture(Long employeeId);
+    
+    List<EmployeeDetailsResponseDto> getOnlyHr();
+    
+    List<EmployeeDetailsResponseDto> getOnlyEmployee();
 
 }

@@ -345,6 +345,30 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	    return true;
 	}
+
+
+
+	@Override
+	public List<EmployeeDetailsResponseDto> getOnlyHr() {
+		 List<Employee> employees = employeeRepository.findOnlyHr();
+		 List<EmployeeDetailsResponseDto> allHrAndEmployee = employees.stream()
+			        .map(emp -> mapper.map(emp, EmployeeDetailsResponseDto.class))
+			        .collect(Collectors.toList());
+
+		 return allHrAndEmployee;
+	}
+
+
+
+	@Override
+	public List<EmployeeDetailsResponseDto> getOnlyEmployee() {
+		 List<Employee> employees = employeeRepository.findOnlyEmployees();
+		 List<EmployeeDetailsResponseDto> allEmployee = employees.stream()
+			        .map(emp -> mapper.map(emp, EmployeeDetailsResponseDto.class))
+			        .collect(Collectors.toList());
+
+		 return allEmployee;
+	}
 	
 }
 	       
