@@ -15,6 +15,8 @@ import com.neb.repo.ClientRepository;
 import com.neb.repo.ProjectRepository;
 import com.neb.service.ProjectService;
 
+import jakarta.transaction.Transactional;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,61 +28,38 @@ public class ProjectServiceImpl implements ProjectService {
 @Autowired
 private  ProjectRepository projectRepository;
 
-    @Override
-    public Project addProject(AddProjectRequestDto dto) {
+@Override
+public Project addProject(AddProjectRequestDto dto) {
 
-        // Fetch client
-        Client client = clientRepository.findById(dto.getClientId())
-                .orElseThrow(() -> new RuntimeException("Client not found"));
+    Client client = clientRepository.findById(dto.getClientId())
+            .orElseThrow(() -> new RuntimeException("Client not found"));
 
-        // Create Project entity
-        Project project = new Project();
-        project.setClient(client);
-        project.setProjectName(dto.getProjectName());
-        project.setProjectCode(dto.getProjectCode());
-        project.setProjectType(dto.getProjectType());
-        project.setDescription(dto.getDescription());
-        project.setStartDate(dto.getStartDate());
-        project.setExpectedEndDate(dto.getExpectedEndDate());
-        project.setPriority(dto.getPriority());
-        project.setBudget(dto.getBudget());
-        project.setRiskLevel(dto.getRiskLevel());
-        project.setStatus("planned"); // default
-        project.setProgress(0);
-        project.setCreatedDate(LocalDate.now());
+    Project project = new Project();
 
-        // Example: Add ProjectDocument(s) if URLs are provided
-        List<ProjectDocument> documents = new ArrayList<>();
-        if (dto.getQuotationPdfUrl() != null) {
-            ProjectDocument quotation = new ProjectDocument();
-            quotation.setFileName("Quotation.pdf");
-            quotation.setFileUrl(dto.getQuotationPdfUrl());
-            quotation.setProject(project);
-            documents.add(quotation);
-        }
+    project.setClient(client);
+    project.setProjectName(dto.getProjectName());
+    project.setProjectCode(dto.getProjectCode());
+    project.setProjectType(dto.getProjectType());
+    project.setDescription(dto.getDescription());
+    project.setStartDate(dto.getStartDate());
+    project.setExpectedEndDate(dto.getExpectedEndDate());
+    project.setPriority(dto.getPriority());
+    project.setBudget(dto.getBudget());
+    project.setRiskLevel(dto.getRiskLevel());
 
-        if (dto.getRequirementDocUrl() != null) {
-            ProjectDocument reqDoc = new ProjectDocument();
-            reqDoc.setFileName("RequirementDoc.pdf");
-            reqDoc.setFileUrl(dto.getRequirementDocUrl());
-            reqDoc.setProject(project);
-            documents.add(reqDoc);
-        }
+    // defaults
+    project.setStatus("planned");
+    project.setProgress(0);
+    project.setCreatedDate(LocalDate.now());
 
-        if (dto.getContractPdfUrl() != null) {
-            ProjectDocument contract = new ProjectDocument();
-            contract.setFileName("Contract.pdf");
-            contract.setFileUrl(dto.getContractPdfUrl());
-            contract.setProject(project);
-            documents.add(contract);
-        }
+    // documents (IMPORTANT)
+    project.setQuotationPdfUrl(dto.getQuotationPdfUrl());
+    project.setRequirementDocUrl(dto.getRequirementDocUrl());
+    project.setContractPdfUrl(dto.getContractPdfUrl());
 
-        project.setDocuments(documents);
+    return projectRepository.save(project);
+}
 
-        // Save project (cascade will save documents)
-        return projectRepository.save(project);
-    }
-    
     @Override
     public ResponseMessage<List<ProjectResponseDto>> getAllProjects() {
         List<ProjectResponseDto> dtoList =
@@ -135,6 +114,8 @@ private  ProjectRepository projectRepository;
         dto.setClientId(p.getClient().getId());
         return dto;
     }
+    @Override
+    @Transactional
     public ProjectResponseDto updateProjectStatus(Long projectId, String status) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectId));

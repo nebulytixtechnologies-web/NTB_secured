@@ -9,7 +9,7 @@ import com.neb.dto.UpdateProjectRequestDto;
 import com.neb.entity.Project;
 
 public interface ProjectService {
-    Project addProject(AddProjectRequestDto dto);
+	Project addProject(AddProjectRequestDto dto);
 
     ResponseMessage<List<ProjectResponseDto>> getAllProjects();
 

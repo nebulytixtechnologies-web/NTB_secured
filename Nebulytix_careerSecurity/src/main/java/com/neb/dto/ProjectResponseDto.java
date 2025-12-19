@@ -21,8 +21,25 @@ public class ProjectResponseDto {
     private String status;
     private Integer progress;
     private Long clientId;
-	public static ProjectResponseDto fromEntity(Project project) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    // Converts Project entity to DTO
+    public static ProjectResponseDto fromEntity(Project project) {
+        if (project == null) return null;
+
+        ProjectResponseDto dto = new ProjectResponseDto();
+        dto.setId(project.getId());
+        dto.setProjectName(project.getProjectName());
+        dto.setProjectCode(project.getProjectCode());
+        dto.setProjectType(project.getProjectType());
+        dto.setDescription(project.getDescription());
+        dto.setStartDate(project.getStartDate());
+        dto.setExpectedEndDate(project.getExpectedEndDate());
+        dto.setPriority(project.getPriority());
+        dto.setBudget(project.getBudget());
+        dto.setRiskLevel(project.getRiskLevel());
+        dto.setStatus(project.getStatus());
+        dto.setProgress(project.getProgress());
+        dto.setClientId(project.getClient() != null ? project.getClient().getId() : null);
+
+        return dto;
+    }
 }

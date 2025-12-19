@@ -272,14 +272,24 @@ public class AdminController {
 	        return ResponseEntity.ok(new ResponseMessage<>(200, "SUCCESS", "Client list fetched successfully", clients));
 	    }
 
+
+	    
+
 	    @PostMapping("/project/add")
-	    public ResponseEntity<ResponseMessage<Long>> addProject(@RequestBody AddProjectRequestDto req) {
-	        Project project = projectService.addProject(req);
+	    public ResponseEntity<ResponseMessage<Void>> addProject(
+	            @RequestBody AddProjectRequestDto req) {
+
+	        projectService.addProject(req);
+
 	        return ResponseEntity.ok(
-	                new ResponseMessage<>(200, "SUCCESS", "Project added successfully", project.getId())
+	                new ResponseMessage<>(
+	                        200,
+	                        "SUCCESS",
+	                        "Client project added successfully",
+	                        null
+	                )
 	        );
 	    }
-	    
 	 // GET /api/admin/fetch/employee
 	    @GetMapping("fetch/employee")
 	    public ResponseEntity<ResponseMessage<List<EmployeeProfileDto>>> getAllEmployees() {
@@ -324,22 +334,13 @@ public class AdminController {
 	        return ResponseEntity.ok(projectService.deleteProject(projectId));
 	    }
 	    
-	    @PutMapping("/project/{projectId}/status")
-	    @PreAuthorize("hasRole('ROLE_ADMIN')")
-	    public ResponseEntity<ResponseMessage<ProjectResponseDto>> updateProjectStatus(
+	    @PreAuthorize("hasRole('ADMIN')")
+	    @PutMapping("/{projectId}/status")
+	    public ResponseEntity<ProjectResponseDto> updateProjectStatus(
 	            @PathVariable Long projectId,
 	            @RequestParam String status) {
 
-	        // Call service method to update status
 	        ProjectResponseDto updatedProject = projectService.updateProjectStatus(projectId, status);
-
-	        return ResponseEntity.ok(
-	                new ResponseMessage<>(
-	                        HttpStatus.OK.value(),
-	                        HttpStatus.OK.name(),
-	                        "Project status updated successfully",
-	                        updatedProject
-	                )
-	        );
+	        return ResponseEntity.ok(updatedProject);
 	    }
 }
