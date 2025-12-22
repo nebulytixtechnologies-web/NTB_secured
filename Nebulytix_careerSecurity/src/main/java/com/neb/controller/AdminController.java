@@ -2,9 +2,9 @@
 package com.neb.controller;
 
 import java.time.LocalDate;
-import java.util.HashSet;
+
 import java.util.List;
-import java.util.Set;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ContentDisposition;
@@ -26,10 +26,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.neb.constants.Role;
-import com.neb.dto.AddEmployeeRequestDto;
-import com.neb.dto.AddProjectRequestDto;
-import com.neb.dto.AddWorkRequestDto;
+
 import com.neb.dto.EmployeeDetailsResponseDto;
 import com.neb.dto.GeneratePayslipRequest;
 import com.neb.dto.PayslipDto;
@@ -41,18 +38,19 @@ import com.neb.dto.WorkResponseDto;
 import com.neb.dto.client.ClientDto;
 import com.neb.dto.client.ClientProfileDto;
 import com.neb.dto.employee.EmployeeProfileDto;
+import com.neb.dto.project.AddProjectRequestDto;
 import com.neb.dto.user.AdminProfileDto;
 import com.neb.dto.user.RegisterNewClientRequest;
 import com.neb.dto.user.RegisterNewUerRequest;
 import com.neb.dto.user.UserDto;
 import com.neb.entity.Payslip;
 import com.neb.entity.Project;
-import com.neb.entity.Users;
+
 import com.neb.service.AdminService;
 import com.neb.service.EmployeeService;
 import com.neb.service.HrService;
 import com.neb.service.ProjectService;
-import com.neb.service.UsersService;
+
 
 
 @RestController
@@ -68,8 +66,10 @@ public class AdminController {
 	
 	@Autowired
 	private EmployeeService employeeService;
+	
 	@Autowired
 	private ProjectService projectService;
+	
 	
     @PostMapping("/create-admin")
     public ResponseEntity<ResponseMessage> createAdmin(@RequestBody UserDto dto) {
@@ -107,23 +107,7 @@ public class AdminController {
                 new ResponseMessage<>(200, "SUCCESS", "Admin profile fetched", dto)
         );
     }
-	
-	
-//	 @PostMapping(value = "/work/add", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-//	 
-//	    public ResponseEntity<ResponseMessage<String>> addWork(
-//	        @RequestPart("dto") AddWorkRequestDto dto,
-//	        @RequestPart(value = "file", required = false) MultipartFile file
-//	    ) throws IOException {
-//
-//	        String workRes = adminService.assignWork(dto, file);
-//
-//	        return ResponseEntity.ok(
-//	            new ResponseMessage<>(HttpStatus.OK.value(), HttpStatus.OK.name(), "Work added successfully", workRes)
-//	        );
-//	    }
-//        
-//	    
+
 	    // ✅ Get all Work of employee
 	    @GetMapping("/getAllWork/{empId}")
 	    public ResponseEntity<ResponseMessage<List<WorkResponseDto>>> getAllWork(@PathVariable Long empId) {
@@ -254,7 +238,39 @@ public class AdminController {
 	           List<EmployeeProfileDto> allHr = adminService.getOnlyHr();
             return ResponseEntity.ok(new ResponseMessage<>(200, "OK", "Hr's fetched successfully", allHr));
 	    }
-	    
+
+	    @GetMapping("/clients")
+	    public ResponseEntity<ResponseMessage<List<ClientDto>>> getClientList() {
+	        List<ClientDto> clients = adminService.getClientList();
+	        return ResponseEntity.ok(new ResponseMessage<>(200, "SUCCESS", "Client list fetched successfully", clients));
+	    }
+
+
+	    @PostMapping(
+	            value = "/project/add",
+	            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+	    )
+	    public ResponseEntity<ResponseMessage<String>> addProject(
+
+	            @RequestPart("data") AddProjectRequestDto dto,
+	            @RequestPart("quotation") MultipartFile quotation,
+	            @RequestPart("requirement") MultipartFile requirement,
+	            @RequestPart("contract") MultipartFile contract
+	           ) {
+
+	        projectService.addProject(dto, quotation, requirement);
+
+	        return ResponseEntity.ok(
+	                new ResponseMessage<>(
+	                        200,
+	                        "SUCCESS",
+	                        "Project added successfully",
+	                        null
+	                )
+	        );
+	    }
+
+	
 	    @GetMapping("fetch/employee")
 	    public ResponseEntity<ResponseMessage<List<EmployeeProfileDto>>> getAllEmployees() {
 	           List<EmployeeProfileDto> allEmployee = adminService.getOnlyEmployee();
@@ -271,20 +287,6 @@ public class AdminController {
 	      );
 	    }
 	    
-	    @GetMapping("/clients")
-	    public ResponseEntity<ResponseMessage<List<ClientDto>>> getClientList() {
-	        List<ClientDto> clients = adminService.getClientList();
-	        return ResponseEntity.ok(new ResponseMessage<>(200, "SUCCESS", "Client list fetched successfully", clients));
-	    }
-
-	    @PostMapping("/project/add")
-	    public ResponseEntity<ResponseMessage<Long>> addProject(@RequestBody AddProjectRequestDto req) {
-	        Project project = projectService.addProject(req);
-	        return ResponseEntity.ok(
-	                new ResponseMessage<>(200, "SUCCESS", "Project added successfully", project.getId()));
-	    }
-	    
-        
 	    // GET All Projects
 	    @GetMapping("/projects")
 	    @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -313,21 +315,28 @@ public class AdminController {
 	        return ResponseEntity.ok(projectService.deleteProject(projectId));
 	    }
 	    
-	    @PutMapping("/project/{projectId}/status")
-	    @PreAuthorize("hasRole('ROLE_ADMIN')")
-	    public ResponseEntity<ResponseMessage<ProjectResponseDto>> updateProjectStatus(
+	    @PreAuthorize("hasRole('ADMIN')")
+	    @PutMapping("/{projectId}/status")
+	    public ResponseEntity<ProjectResponseDto> updateProjectStatus(
 	            @PathVariable Long projectId,
 	            @RequestParam String status) {
 
-	        // Call service method to update status
 	        ProjectResponseDto updatedProject = projectService.updateProjectStatus(projectId, status);
+	        return ResponseEntity.ok(updatedProject);
+	    }
+	    
+	    @GetMapping("/projects/client/{clientId}")
+	    public ResponseEntity<ResponseMessage<List<ProjectResponseDto>>> getProjectsByClient(
+	            @PathVariable Long clientId) {
+
+	        List<ProjectResponseDto> projects = projectService.getProjectsByClient(clientId);
 
 	        return ResponseEntity.ok(
 	                new ResponseMessage<>(
 	                        HttpStatus.OK.value(),
 	                        HttpStatus.OK.name(),
-	                        "Project status updated successfully",
-	                        updatedProject
+	                        "Projects fetched successfully for client",
+	                        projects
 	                )
 	        );
 	    }
