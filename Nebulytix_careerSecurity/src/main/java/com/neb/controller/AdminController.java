@@ -2,9 +2,7 @@
 package com.neb.controller;
 
 import java.time.LocalDate;
-
 import java.util.List;
-
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ContentDisposition;
@@ -26,17 +24,19 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import com.neb.dto.EmployeeDetailsResponseDto;
+import com.neb.dto.EmployeeResponseDto;
 import com.neb.dto.GeneratePayslipRequest;
 import com.neb.dto.PayslipDto;
 import com.neb.dto.ProjectResponseDto;
 import com.neb.dto.ResponseMessage;
 import com.neb.dto.UpdateEmployeeRequestDto;
+import com.neb.dto.UpdateEmployeeResponseDto;
 import com.neb.dto.UpdateProjectRequestDto;
 import com.neb.dto.WorkResponseDto;
 import com.neb.dto.client.ClientDto;
 import com.neb.dto.client.ClientProfileDto;
+import com.neb.dto.client.UpdateClientRequest;
 import com.neb.dto.employee.EmployeeProfileDto;
 import com.neb.dto.project.AddProjectRequestDto;
 import com.neb.dto.user.AdminProfileDto;
@@ -44,9 +44,8 @@ import com.neb.dto.user.RegisterNewClientRequest;
 import com.neb.dto.user.RegisterNewUerRequest;
 import com.neb.dto.user.UserDto;
 import com.neb.entity.Payslip;
-import com.neb.entity.Project;
-
 import com.neb.service.AdminService;
+import com.neb.service.ClientService;
 import com.neb.service.EmployeeService;
 import com.neb.service.HrService;
 import com.neb.service.ProjectService;
@@ -70,6 +69,8 @@ public class AdminController {
 	@Autowired
 	private ProjectService projectService;
 	
+	@Autowired
+	private ClientService clientService;
 	
     @PostMapping("/create-admin")
     public ResponseEntity<ResponseMessage> createAdmin(@RequestBody UserDto dto) {
@@ -96,6 +97,7 @@ public class AdminController {
                 new ResponseMessage(200, "OK", "Client created successfully")
         );
     }
+    
     
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/me")
@@ -233,6 +235,7 @@ public class AdminController {
 	    @GetMapping("fetch/manager")
 	    public ResponseEntity<ResponseMessage<List<EmployeeProfileDto>>> getAllManager() {
 	           List<EmployeeProfileDto> allManager = adminService.getOnlyManager();
+	           System.out.println("Manager => "+allManager);
     	        return ResponseEntity.ok(
 	              new ResponseMessage<>(200, "OK", "Managers fetched successfully", allManager)
 	      );
@@ -242,6 +245,7 @@ public class AdminController {
 	    @GetMapping("fetch/hr")
 	    public ResponseEntity<ResponseMessage<List<EmployeeProfileDto>>> getAllHr() {
 	           List<EmployeeProfileDto> allHr = adminService.getOnlyHr();
+	           System.out.println("hr => "+allHr);
             return ResponseEntity.ok(new ResponseMessage<>(200, "OK", "Hr's fetched successfully", allHr));
 	    }
 
@@ -264,7 +268,7 @@ public class AdminController {
 	            @RequestPart("contract") MultipartFile contract
 	           ) {
 
-	        projectService.addProject(dto, quotation, requirement);
+	        projectService.addProject(dto, quotation, requirement,contract);
 
 	        return ResponseEntity.ok(
 	                new ResponseMessage<>(
@@ -345,5 +349,51 @@ public class AdminController {
 	                        projects
 	                )
 	        );
+	    }
+	    
+	    @PostMapping("add/project/{projectId}/employees/{employeeId}")
+	    public ResponseEntity<ProjectResponseDto> addEmployeeToProject(@PathVariable Long projectId,@PathVariable Long employeeId)
+	    {
+	    	 ProjectResponseDto employeeToProject = projectService.addEmployeeToProject(projectId, employeeId);
+	        return ResponseEntity.ok(employeeToProject);
+	    }
+	    
+	    
+	    @GetMapping("view/projects/{projectId}/employees")
+	    public ResponseEntity<ResponseMessage<List<EmployeeResponseDto>>> getEmployeesByProject(@PathVariable Long projectId) {
+	    	List<EmployeeResponseDto> employees = clientService.getEmployeesByProject(projectId);
+	        return ResponseEntity.ok(
+	                new ResponseMessage<>(200, "SUCCESS", "Employees for project fetched successfully", employees)
+	        );
+	    }
+	    
+	    @DeleteMapping("delete/{projectId}/employees/{employeeId}")
+	    public ResponseEntity<String> removeEmployeeFromProject(
+	            @PathVariable Long projectId,
+	            @PathVariable Long employeeId) {
+
+	        projectService.removeEmployeeFromProject(projectId, employeeId);
+	        return ResponseEntity.ok("Employee removed from project successfully");
+	    }
+	    
+	    @PutMapping("editEmp/{id}")
+	    public ResponseEntity<ResponseMessage<UpdateEmployeeResponseDto>> updateEmployee(
+	                                                        @PathVariable("id") Long employeeId,
+	                                                        @RequestBody UpdateEmployeeRequestDto requestDto) {
+
+	            UpdateEmployeeResponseDto response = employeeService.updateEmployee((Long) employeeId, requestDto);
+
+	        return ResponseEntity.ok(new ResponseMessage<>(200, "SUCCESS", "Employee updated successfully with id "+response.getId(), response));
+	    }
+	    
+	    @PutMapping("/update-client/{clientId}")
+	    public ResponseEntity<ResponseMessage<ClientProfileDto>> updateClient(
+	            @PathVariable Long clientId,
+	            @RequestBody UpdateClientRequest req) {
+
+	        ClientProfileDto updateClient = adminService.updateClient(clientId, req);
+
+	        return ResponseEntity.ok(
+	                new ResponseMessage<>(200, "OK", "Client updated successfully",updateClient));
 	    }
 }

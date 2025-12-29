@@ -35,6 +35,7 @@ import com.neb.dto.LoginRequestDto;
 import com.neb.dto.PayslipDto;
 import com.neb.dto.ResponseMessage;
 import com.neb.dto.UpdateEmployeeRequestDto;
+import com.neb.dto.UpdateEmployeeResponseDto;
 import com.neb.dto.UpdatePasswordRequestDto;
 import com.neb.dto.employee.EmployeeProfileDto;
 import com.neb.dto.salary.SalaryRequestDto;
@@ -89,6 +90,7 @@ public class HrController {
             new ResponseMessage(200, "OK", "User created successfully")
         );
     }
+    
     
    //====================== salary part ==============================
     @PostMapping("/add/salary")
@@ -217,7 +219,7 @@ public class HrController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "OK", msg, null));
     }
 
- // Send email to all shortlisted applicants
+       // Send email to all shortlisted applicants
     @PostMapping("/job/sendShortlistedEmails")
     public ResponseEntity<ResponseMessage<List<JobApplication>>> sendShortlistedEmails(@RequestBody EmailRequestDto emailRequest) {
         List<JobApplication> updatedApplicants = service.sendEmailsToShortlisted(emailRequest.getSubject(), emailRequest.getMessage());

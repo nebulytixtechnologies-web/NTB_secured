@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.neb.constants.WorkStatus;
 import com.neb.dto.AddWorkRequestDto;
+import com.neb.dto.EmployeeResponseDto;
 import com.neb.dto.WorkResponseDto;
 import com.neb.dto.client.AddClientRequest;
 import com.neb.dto.client.ClientProfileDto;
@@ -102,8 +103,12 @@ public class ClientServiceImpl implements ClientService{
     }
 
     @Override
-    public Optional<Employee> getEmployeesByProject(Long projectId) {
-        return employeeRepo.findById(projectId);
+    public List<EmployeeResponseDto> getEmployeesByProject(Long projectId) {
+    	List<Employee> employees = employeeRepo.findEmployeesByProjectId(projectId);
+
+        return employees.stream()
+                .map(emp -> mapper.map(emp, EmployeeResponseDto.class))
+                .toList();
     }
 
     @Override

@@ -24,6 +24,7 @@ import com.neb.dto.UpdateEmployeeRequestDto;
 import com.neb.dto.WorkResponseDto;
 import com.neb.dto.client.ClientDto;
 import com.neb.dto.client.ClientProfileDto;
+import com.neb.dto.client.UpdateClientRequest;
 import com.neb.dto.employee.EmployeeProfileDto;
 import com.neb.dto.user.AdminProfileDto;
 import com.neb.dto.user.RegisterNewClientRequest;
@@ -412,6 +413,7 @@ public class AdminServiceImpl implements AdminService{
 	@Override
 	public List<EmployeeProfileDto> getOnlyHr() {
 		 List<Employee> employees = empRepo.findOnlyHr();
+		 System.out.println("service hr ==> "+employees);
 		 
 		 return employees.stream()
 			        .map(emp -> {
@@ -469,7 +471,7 @@ public class AdminServiceImpl implements AdminService{
 	public List<EmployeeProfileDto> getOnlyManager() 
 	{ 
 		List<Employee> employees = empRepo.findOnlyManager();
-	 
+		 System.out.println("service Managers ==> "+employees);
 	 return employees.stream()
 		        .map(emp -> {
 		            EmployeeProfileDto dto = new EmployeeProfileDto();
@@ -520,6 +522,28 @@ public class AdminServiceImpl implements AdminService{
 	        })
 	        .collect(Collectors.toList());
      
+	}
+
+	@Override
+	public ClientProfileDto updateClient(Long clientId, UpdateClientRequest req) {
+		Client client = clientRepo.findById(clientId)
+                .orElseThrow(() ->
+                        new RuntimeException("Client not found with id: " + clientId));
+
+        client.setCompanyName(req.getCompanyName());
+        client.setContactPerson(req.getContactPerson());
+        client.setContactEmail(req.getContactEmail());
+        client.setPhone(req.getPhone());
+        client.setAlternatePhone(req.getAlternatePhone());
+        client.setAddress(req.getAddress());
+        client.setWebsite(req.getWebsite());
+        client.setIndustryType(req.getIndustryType());
+        client.setGstNumber(req.getGstNumber());
+        client.setUpdatedDate(LocalDate.now());
+        Client save = clientRepo.save(client);
+        
+        return mapper.map(save, ClientProfileDto.class);
+		
 	}
 
 	

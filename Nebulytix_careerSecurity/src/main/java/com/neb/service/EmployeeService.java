@@ -35,6 +35,7 @@ public interface EmployeeService {
     public String uploadProfilePicture(Long employeeId, MultipartFile file);
     
     boolean deleteProfilePicture(Long employeeId);
+	public UpdateEmployeeResponseDto updateEmployee(Long employeeId, UpdateEmployeeRequestDto requestDto);
     
     
 

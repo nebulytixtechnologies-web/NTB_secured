@@ -1,14 +1,13 @@
 package com.neb.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.neb.dto.AddWorkRequestDto;
+import com.neb.dto.EmployeeResponseDto;
 import com.neb.dto.WorkResponseDto;
 import com.neb.dto.client.AddClientRequest;
 import com.neb.dto.client.ClientProfileDto;
 import com.neb.entity.DailyReport;
-import com.neb.entity.Employee;
 import com.neb.entity.Project;
 import com.neb.entity.Users;
 
@@ -21,7 +20,7 @@ public interface ClientService {
 
 	    String getProjectStatus(Long projectId);
 
-	    Optional<Employee> getEmployeesByProject(Long projectId);
+	    List<EmployeeResponseDto> getEmployeesByProject(Long projectId);
 
 	    WorkResponseDto assignWorkToEmployee(Long projectId, AddWorkRequestDto dto);
 

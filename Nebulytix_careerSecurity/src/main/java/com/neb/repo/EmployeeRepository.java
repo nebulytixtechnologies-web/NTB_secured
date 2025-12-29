@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.neb.entity.Client;
 import com.neb.entity.Employee;
@@ -23,7 +24,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
               FROM Employee e
               JOIN e.user u
               WHERE com.neb.constants.Role.ROLE_HR MEMBER OF u.roles
-              AND com.neb.constants.Role.ROLE_ADMIN NOT MEMBER OF u.roles
+               AND com.neb.constants.Role.ROLE_ADMIN NOT MEMBER OF u.roles
               AND com.neb.constants.Role.ROLE_MANAGER NOT MEMBER OF u.roles
     	    """)
     	List<Employee> findOnlyHr();
@@ -70,5 +71,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     	""")
     	List<Client> findOnlyClients();
     
-    
+    @Query("SELECT e FROM Project p JOIN p.employees e WHERE p.id = :projectId")
+    List<Employee> findEmployeesByProjectId(@Param("projectId") Long projectId);
+
 }

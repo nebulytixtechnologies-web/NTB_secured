@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.neb.dto.AddWorkRequestDto;
+import com.neb.dto.EmployeeResponseDto;
 import com.neb.dto.ResponseMessage;
 import com.neb.dto.WorkResponseDto;
 import com.neb.dto.client.ClientProfileDto;
@@ -63,8 +64,8 @@ public class ClientController {
     //  Get employees working under a specific project
     @PreAuthorize("hasRole('CLIENT')")
     @GetMapping("/projects/{projectId}/employees")
-    public ResponseEntity<ResponseMessage<Optional<Employee>>> getEmployeesByProject(@PathVariable Long projectId) {
-        Optional<Employee> employees = clientService.getEmployeesByProject(projectId);
+    public ResponseEntity<ResponseMessage<List<EmployeeResponseDto>>> getEmployeesByProject(@PathVariable Long projectId) {
+        List<EmployeeResponseDto> employees = clientService.getEmployeesByProject(projectId);
         return ResponseEntity.ok(
                 new ResponseMessage<>(200, "SUCCESS", "Employees for project fetched successfully", employees)
         );
