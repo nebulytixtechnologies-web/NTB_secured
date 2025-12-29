@@ -1,4 +1,4 @@
-package com.neb.dto;
+package com.neb.dto.employee;
 
 import java.time.LocalDate;
 
@@ -15,7 +15,6 @@ public class UpdateEmployeeResponseDto {
     private String cardNumber;
     private String gender;
     private LocalDate joiningDate;
-    private Double salary;
     private int daysPresent;
     private int paidLeaves;
     private String designation;

@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import com.neb.dto.ProjectResponseDto;
 import com.neb.dto.ResponseMessage;
 import com.neb.dto.UpdateProjectRequestDto;
 import com.neb.dto.project.AddProjectRequestDto;
+import com.neb.dto.project.ProjectsResponseDto;
 import com.neb.entity.Client;
 import com.neb.entity.Employee;
 import com.neb.entity.Project;
@@ -240,5 +242,23 @@ public class ProjectServiceImpl implements ProjectService {
 	        projectRepository.save(project);
 	   
 		
+	}
+
+	@Override
+	public ProjectsResponseDto getActiveProjectsByEmployee(Long employeeId) {
+		 Project project = projectRepository
+                .findOngoingProjectsByEmployeeId(employeeId)
+                .stream()
+                .findFirst().orElseThrow(()-> new CustomeException("Project Not Found"));
+		return mapper.map(project, ProjectsResponseDto.class);
+	}
+
+	@Override
+	public List<ProjectsResponseDto> getProjectsByEmployeeId(Long employeeId) {
+		 List<Project> projects = projectRepository.findProjectsByEmployeeId(employeeId);
+		 
+		 return projects.stream()
+		            .map(project -> mapper.map(project, ProjectsResponseDto.class))
+		            .toList();
 	}
 }

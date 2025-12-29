@@ -30,14 +30,14 @@ import com.neb.dto.GeneratePayslipRequest;
 import com.neb.dto.PayslipDto;
 import com.neb.dto.ProjectResponseDto;
 import com.neb.dto.ResponseMessage;
-import com.neb.dto.UpdateEmployeeRequestDto;
-import com.neb.dto.UpdateEmployeeResponseDto;
 import com.neb.dto.UpdateProjectRequestDto;
 import com.neb.dto.WorkResponseDto;
 import com.neb.dto.client.ClientDto;
 import com.neb.dto.client.ClientProfileDto;
 import com.neb.dto.client.UpdateClientRequest;
 import com.neb.dto.employee.EmployeeProfileDto;
+import com.neb.dto.employee.UpdateEmployeeRequestDto;
+import com.neb.dto.employee.UpdateEmployeeResponseDto;
 import com.neb.dto.project.AddProjectRequestDto;
 import com.neb.dto.user.AdminProfileDto;
 import com.neb.dto.user.RegisterNewClientRequest;
@@ -374,16 +374,6 @@ public class AdminController {
 
 	        projectService.removeEmployeeFromProject(projectId, employeeId);
 	        return ResponseEntity.ok("Employee removed from project successfully");
-	    }
-	    
-	    @PutMapping("editEmp/{id}")
-	    public ResponseEntity<ResponseMessage<UpdateEmployeeResponseDto>> updateEmployee(
-	                                                        @PathVariable("id") Long employeeId,
-	                                                        @RequestBody UpdateEmployeeRequestDto requestDto) {
-
-	            UpdateEmployeeResponseDto response = employeeService.updateEmployee((Long) employeeId, requestDto);
-
-	        return ResponseEntity.ok(new ResponseMessage<>(200, "SUCCESS", "Employee updated successfully with id "+response.getId(), response));
 	    }
 	    
 	    @PutMapping("/update-client/{clientId}")

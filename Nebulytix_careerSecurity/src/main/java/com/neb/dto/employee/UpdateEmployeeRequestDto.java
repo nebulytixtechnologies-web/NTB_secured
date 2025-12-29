@@ -1,4 +1,4 @@
-package com.neb.dto;
+package com.neb.dto.employee;
 
 
 import lombok.Data;
@@ -10,12 +10,10 @@ public class UpdateEmployeeRequestDto {
     private String lastName;
     private String email;
     private String mobile;
-    private String cardNumber;
-    private String jobRole;     
+    private String cardNumber;   
     private String designation;
     private String department;
     private String gender;
-    private Double salary;
     private int paidLeaves;
     
    

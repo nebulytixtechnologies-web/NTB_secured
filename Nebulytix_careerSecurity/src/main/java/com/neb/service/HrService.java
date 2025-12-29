@@ -7,7 +7,8 @@ import com.neb.dto.AddJobRequestDto;
 import com.neb.dto.EmployeeDetailsResponseDto;
 import com.neb.dto.JobDetailsDto;
 import com.neb.dto.PayslipDto;
-import com.neb.dto.UpdateEmployeeRequestDto;
+import com.neb.dto.employee.UpdateEmployeeRequestDto;
+import com.neb.dto.employee.UpdateEmployeeResponseDto;
 import com.neb.dto.salary.SalaryRequestDto;
 import com.neb.dto.salary.SalaryResponseDto;
 import com.neb.entity.JobApplication;
@@ -18,7 +19,7 @@ public interface HrService {
     EmployeeDetailsResponseDto getEmployee(Long id);
     String deleteById(Long id);
     EmployeeDetailsResponseDto addAttendence(Long id, int days);
-    EmployeeDetailsResponseDto updateEmployee(Long id, UpdateEmployeeRequestDto updateReq);
+  
   
     // Payslip
     byte[] downloadPayslip(Long payslipId) throws Exception;

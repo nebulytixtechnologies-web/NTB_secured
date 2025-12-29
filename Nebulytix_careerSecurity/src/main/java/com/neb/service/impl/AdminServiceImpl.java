@@ -20,12 +20,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.neb.constants.WorkStatus;
 import com.neb.dto.AddWorkRequestDto;
 import com.neb.dto.EmployeeDetailsResponseDto;
-import com.neb.dto.UpdateEmployeeRequestDto;
 import com.neb.dto.WorkResponseDto;
 import com.neb.dto.client.ClientDto;
 import com.neb.dto.client.ClientProfileDto;
 import com.neb.dto.client.UpdateClientRequest;
 import com.neb.dto.employee.EmployeeProfileDto;
+import com.neb.dto.employee.UpdateEmployeeRequestDto;
 import com.neb.dto.user.AdminProfileDto;
 import com.neb.dto.user.RegisterNewClientRequest;
 import com.neb.dto.user.RegisterNewUerRequest;
@@ -294,6 +294,7 @@ public class AdminServiceImpl implements AdminService{
 	    byte[] dailyReportPDF = pdfGenerator.generateReportPDF(works, date);
 	    return dailyReportPDF;
 	}
+	
 	@Override
 	public EmployeeDetailsResponseDto updateHrDetails(Long id, UpdateEmployeeRequestDto updateReq) {
 
@@ -322,9 +323,6 @@ public class AdminServiceImpl implements AdminService{
 	        hr.setGender(updateReq.getGender());
 
 	    // -------- SALARY + LEAVES --------
-	    if (updateReq.getSalary() != null)
-	        hr.setSalary(updateReq.getSalary());
-
 	    if (updateReq.getPaidLeaves() != 0)
 	        hr.setPaidLeaves(updateReq.getPaidLeaves());
 
@@ -363,15 +361,12 @@ public class AdminServiceImpl implements AdminService{
 	@Override
 	public String deleteAdmin(Long id)
 	{
-
-		Optional<Employee> emp = empRepo.findById(id);	
-		if(emp.isPresent()) {
-			empRepo.deleteById(id);
-			return "Admin deleted with id:"+id;
-		}
-		else {
-			throw new CustomeException("Admin not found with id :"+id);
-		}
+		  Users users=usersRepository.findById(id)
+				      .orElseThrow(() ->new CustomeException("Admin not found with id: " + id));
+		  
+		users.setEnabled(false);
+		usersRepository.save(users);
+		return "Admin soft deleted with id: " + users.getId();
 	}
 
 	@Override

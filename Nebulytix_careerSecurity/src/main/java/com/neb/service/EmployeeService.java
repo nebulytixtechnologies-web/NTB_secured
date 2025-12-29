@@ -9,6 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.neb.dto.*;
 import com.neb.dto.employee.AddEmployeeRequest;
 import com.neb.dto.employee.EmployeeProfileDto;
+import com.neb.dto.employee.UpdateEmployeeRequestDto;
+import com.neb.dto.employee.UpdateEmployeeResponseDto;
 import com.neb.entity.*;
 
 public interface EmployeeService {

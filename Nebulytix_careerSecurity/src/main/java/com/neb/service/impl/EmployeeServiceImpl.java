@@ -19,11 +19,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.neb.constants.WorkStatus;
 import com.neb.dto.AddDailyReportRequestDto;
 import com.neb.dto.EmployeeResponseDto;
-import com.neb.dto.UpdateEmployeeRequestDto;
-import com.neb.dto.UpdateEmployeeResponseDto;
 import com.neb.dto.WorkResponseDto;
 import com.neb.dto.employee.AddEmployeeRequest;
 import com.neb.dto.employee.EmployeeProfileDto;
+import com.neb.dto.employee.UpdateEmployeeRequestDto;
+import com.neb.dto.employee.UpdateEmployeeResponseDto;
 import com.neb.entity.DailyReport;
 import com.neb.entity.Employee;
 import com.neb.entity.Payslip;
@@ -356,20 +356,18 @@ public class EmployeeServiceImpl implements EmployeeService {
 	                        new RuntimeException("Employee not found with id: " + employeeId));
 
 	        // ===== Update Employee fields =====
-	        employee.setFirstName(dto.getFirstName());
-	        employee.setLastName(dto.getLastName());
-	        employee.setMobile(dto.getMobile());
-	        employee.setCardNumber(dto.getCardNumber());
-	        employee.setDesignation(dto.getJobRole());
-	        employee.setDepartment(dto.getDepartment());
-	        employee.setDesignation(dto.getDesignation());
-	        employee.setGender(dto.getGender());
-	        employee.setSalary(dto.getSalary());
-	        employee.setPaidLeaves(dto.getPaidLeaves());
+	       if(dto.getFirstName() != null) employee.setFirstName(dto.getFirstName());
+	       if(dto.getLastName()!=null) employee.setLastName(dto.getLastName());
+	       if(dto.getMobile()!=null)  employee.setMobile(dto.getMobile());
+	       if(dto.getCardNumber()!=null) employee.setCardNumber(dto.getCardNumber());
+	       if(dto.getDepartment()!=null)  employee.setDepartment(dto.getDepartment());
+	       if(dto.getDesignation()!= null) employee.setDesignation(dto.getDesignation());
+	       if(dto.getGender() !=null) employee.setGender(dto.getGender());
+	       employee.setPaidLeaves(dto.getPaidLeaves());
             
 	        // ===== Update User email =====
 	        Users user = employee.getUser();
-	        if (user != null && dto.getEmail() != null) {
+	        if (user != null && dto.getEmail() != null) { 
 	            user.setEmail(dto.getEmail());
 	        }
 
@@ -385,7 +383,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 	        response.setCardNumber(employee.getCardNumber());
 	        response.setGender(employee.getGender());
 	        response.setJoiningDate(employee.getJoiningDate());
-	        response.setSalary(employee.getSalary());
 	        response.setDaysPresent(employee.getDaysPresent());
 	        response.setPaidLeaves(employee.getPaidLeaves());
             response.setDepartment(employee.getDepartment());
