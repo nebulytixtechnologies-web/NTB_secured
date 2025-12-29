@@ -20,20 +20,19 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.neb.dto.AddDailyReportRequestDto;
-import com.neb.dto.ApplyLeaveRequestDto;
-import com.neb.dto.EmployeeDetailsResponseDto;
 import com.neb.dto.GeneratePayslipRequest;
-import com.neb.dto.LoginRequestDto;
 import com.neb.dto.PayslipDto;
+import com.neb.dto.ProjectResponseDto;
 import com.neb.dto.ResponseMessage;
 import com.neb.dto.WorkResponseDto;
 import com.neb.dto.employee.EmployeeProfileDto;
+import com.neb.dto.project.ProjectsResponseDto;
 import com.neb.entity.Employee;
-import com.neb.entity.Leave;
 import com.neb.entity.Payslip;
 import com.neb.entity.Work;
 import com.neb.service.EmployeeService;
 import com.neb.service.LeaveService;
+import com.neb.service.ProjectService;
 
 @RestController
 @RequestMapping("/api/employee")
@@ -45,6 +44,8 @@ public class EmployeeController {
 	@Autowired
 	private LeaveService leaveService;
 	
+	@Autowired
+	private ProjectService projectService;
 	
 	@GetMapping("/me")
     public ResponseEntity<ResponseMessage<EmployeeProfileDto>> getMyProfile() {
@@ -162,7 +163,11 @@ public class EmployeeController {
         }
     }
    
-
+    @GetMapping("/{employeeId}/active-projects")
+    public ResponseEntity<ResponseMessage<ProjectsResponseDto>> getActiveProjects(@PathVariable Long employeeId) {
+    	ProjectsResponseDto project = projectService.getActiveProjectsByEmployee(employeeId);
+        return ResponseEntity.ok(new ResponseMessage<>(HttpStatus.OK.value(), HttpStatus.OK.name(),"Project fetched successfully based on emp id ", project));
+    }
    
   
 }

@@ -361,15 +361,12 @@ public class AdminServiceImpl implements AdminService{
 	@Override
 	public String deleteAdmin(Long id)
 	{
-
-		Optional<Employee> emp = empRepo.findById(id);	
-		if(emp.isPresent()) {
-			empRepo.deleteById(id);
-			return "Admin deleted with id:"+id;
-		}
-		else {
-			throw new CustomeException("Admin not found with id :"+id);
-		}
+		  Users users=usersRepository.findById(id)
+				      .orElseThrow(() ->new CustomeException("Admin not found with id: " + id));
+		  
+		users.setEnabled(false);
+		usersRepository.save(users);
+		return "Admin soft deleted with id: " + users.getId();
 	}
 
 	@Override

@@ -2,13 +2,13 @@ package com.neb.service;
 
 import java.util.List;
 
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.neb.dto.ProjectResponseDto;
 import com.neb.dto.ResponseMessage;
 import com.neb.dto.UpdateProjectRequestDto;
 import com.neb.dto.project.AddProjectRequestDto;
+import com.neb.dto.project.ProjectsResponseDto;
 import com.neb.entity.Project;
 public interface ProjectService {
 	
@@ -33,4 +33,6 @@ public interface ProjectService {
    public  ProjectResponseDto addEmployeeToProject(Long projectId, Long employeeId);
 
    void removeEmployeeFromProject(Long projectId, Long employeeId);
+
+   ProjectsResponseDto getActiveProjectsByEmployee(Long employeeId);
 }

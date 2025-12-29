@@ -1,4 +1,4 @@
-package com.neb.dto;
+package com.neb.dto.project;
 
 import java.time.LocalDate;
 
@@ -7,7 +7,7 @@ import com.neb.entity.Project;
 import lombok.Data;
 
 @Data
-public class ProjectResponseDto {
+public class ProjectsResponseDto {
     private Long id;
     private String projectName;
     private String projectCode;
@@ -21,12 +21,14 @@ public class ProjectResponseDto {
     private String status;
     private Integer progress;
     private Long clientId;
-   
+    private String contractPdfUrl;
+    private String quotationPdfUrl;
+    private String requirementDocUrl;
     // Converts Project entity to DTO
-    public static ProjectResponseDto fromEntity(Project project) {
+    public static ProjectsResponseDto fromEntity(Project project) {
         if (project == null) return null;
 
-        ProjectResponseDto dto = new ProjectResponseDto();
+        ProjectsResponseDto dto = new ProjectsResponseDto();
         dto.setId(project.getId());
         dto.setProjectName(project.getProjectName());
         dto.setProjectCode(project.getProjectCode());
@@ -40,6 +42,9 @@ public class ProjectResponseDto {
         dto.setStatus(project.getStatus());
         dto.setProgress(project.getProgress());
         dto.setClientId(project.getClient() != null ? project.getClient().getId() : null);
+        dto.setQuotationPdfUrl(project.getQuotationPdfUrl());
+        dto.setContractPdfUrl(project.getContractPdfUrl());
+        dto.setRequirementDocUrl(project.getRequirementDocUrl());
         return dto;
     }
 }
