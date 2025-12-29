@@ -9,15 +9,30 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.ToString;
+
 
 @Entity
 @Table(name = "employees")
 @Data
 @SQLDelete(sql = "update employees set emp_status='inactive' where id=?")
 @SQLRestriction("emp_status<> 'inactive'")
+@ToString(exclude = {"employeeSessions","leaves","leaveBalance","montlyReport"})
 public class Employee {
 
     @Id
@@ -47,10 +62,7 @@ public class Employee {
     private String profilePictureUrl;
     private String profilePicturePath;
     
-    // Bank details
-    @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL)
-    private EmployeeBankDetails bankDetails;
-    
+
     private String empStatus = "active";
     
     // Projects where employee works
@@ -82,4 +94,27 @@ public class Employee {
         this.firstName = firstName;
         this.lastName = lastName;
     }
+    @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private EmployeeBankDetails bankDetails;
+    
+//    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+//	private List<EmployeeLogInDetails> employeeSessions;
+    
+    
+	@OneToMany(mappedBy = "employee", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+	private List<EmployeeLogInDetails> employeeSessions;
+	
+
+	@OneToMany(mappedBy = "employee",cascade = CascadeType.ALL,fetch=FetchType.LAZY)
+	@JsonIgnore
+	private List<EmployeeLeaves> leaves;
+	
+	@OneToMany(mappedBy = "employee",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+	@JsonIgnore
+	private List<EmployeeLeaveBalance> leaveBalance;
+	
+	@OneToMany(mappedBy = "employee",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+	@JsonIgnore
+	private List<EmployeeMonthlyReport> montlyReport;
+
 }

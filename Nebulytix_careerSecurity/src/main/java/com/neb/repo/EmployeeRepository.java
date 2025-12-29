@@ -16,6 +16,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 //    public boolean existsByEmail(String email);
 //    public Optional<Employee> findByEmail(String email);
     Optional<Employee> findByUserId(Long userId);
+    
    
     
     @Query("""
@@ -69,6 +70,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     	      AND com.neb.constants.Role.ROLE_MANAGER NOT MEMBER OF u.roles
     	""")
     	List<Client> findOnlyClients();
+
     
     
 }

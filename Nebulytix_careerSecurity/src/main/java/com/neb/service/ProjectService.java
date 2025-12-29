@@ -15,7 +15,8 @@ public interface ProjectService {
 	  Project addProject(
 	            AddProjectRequestDto dto,
 	            MultipartFile quotation,
-	            MultipartFile requirement
+	            MultipartFile requirement,
+	            MultipartFile contract
 	            
 	    );
 

@@ -258,7 +258,7 @@ public class AdminController {
 	            @RequestPart("contract") MultipartFile contract
 	           ) {
 
-	        projectService.addProject(dto, quotation, requirement);
+	        projectService.addProject(dto, quotation, requirement,contract);
 
 	        return ResponseEntity.ok(
 	                new ResponseMessage<>(

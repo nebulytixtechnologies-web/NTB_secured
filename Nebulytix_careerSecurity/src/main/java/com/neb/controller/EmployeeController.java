@@ -2,6 +2,7 @@ package com.neb.controller;
 //original
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,21 +20,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+
 import com.neb.dto.AddDailyReportRequestDto;
-import com.neb.dto.ApplyLeaveRequestDto;
-import com.neb.dto.EmployeeDetailsResponseDto;
+import com.neb.dto.EmployeeDTO;
+import com.neb.dto.EmployeeLeaveDTO;
 import com.neb.dto.GeneratePayslipRequest;
-import com.neb.dto.LoginRequestDto;
 import com.neb.dto.PayslipDto;
+import com.neb.dto.ResponseDTO;
 import com.neb.dto.ResponseMessage;
 import com.neb.dto.WorkResponseDto;
 import com.neb.dto.employee.EmployeeProfileDto;
 import com.neb.entity.Employee;
-import com.neb.entity.Leave;
 import com.neb.entity.Payslip;
 import com.neb.entity.Work;
 import com.neb.service.EmployeeService;
-import com.neb.service.LeaveService;
+
 
 @RestController
 @RequestMapping("/api/employee")
@@ -42,8 +43,9 @@ public class EmployeeController {
 	
 	@Autowired
 	private EmployeeService employeeService;
-	@Autowired
-	private LeaveService leaveService;
+	
+	
+	
 	
 	
 	@GetMapping("/me")
@@ -161,8 +163,64 @@ public class EmployeeController {
                     ));
         }
     }
-   
 
    
+    @GetMapping("/webclockin/{employeeId}")
+    public ResponseEntity<ResponseDTO<EmployeeDTO>> employeeLogin(
+            @PathVariable Long employeeId) { // 🔴 MODIFIED
+
+        EmployeeDTO empDto = employeeService.login(employeeId);
+
+        ResponseDTO<EmployeeDTO> response =
+                new ResponseDTO<>(empDto, "Employee Login Successful", LocalDateTime.now());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/webclockout/{employeeId}")
+    public ResponseEntity<ResponseDTO<EmployeeDTO>> employeeLogout(
+            @PathVariable Long employeeId) { // 🔴 MODIFIED
+
+        EmployeeDTO empDto = employeeService.logout(employeeId);
+
+        ResponseDTO<EmployeeDTO> response =
+                new ResponseDTO<>(empDto, "Employee logged out successfully", LocalDateTime.now());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    
+    @PostMapping("/apply-leave")
+    public ResponseEntity<ResponseDTO<EmployeeLeaveDTO>> applyLeave(
+            @RequestBody EmployeeLeaveDTO empLeaveDto) {
+
+        EmployeeLeaveDTO applyLeave = employeeService.applyLeave(empLeaveDto);
+          System.out.println("===> "+applyLeave);
+        ResponseDTO<EmployeeLeaveDTO> response = 
+                new ResponseDTO<>(applyLeave, "Leave Applied Successfully", LocalDateTime.now());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+//   
+
+	
+	/**
+	 * 
+	 * @param wfhDto
+	 * @return
+	 */
+
+    @PostMapping("/apply-wfh")
+    public ResponseEntity<ResponseDTO<EmployeeLeaveDTO>> applyWFH(
+            @RequestBody EmployeeLeaveDTO wfhDto) {
+
+        EmployeeLeaveDTO applyWFH = employeeService.applyWFH(wfhDto);
+
+        ResponseDTO<EmployeeLeaveDTO> response =
+                new ResponseDTO<>(applyWFH, "Work From Home Applied Successfully", LocalDateTime.now());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
   
 }
