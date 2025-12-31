@@ -1,14 +1,11 @@
-package com.neb.dto;
+package com.neb.dto.leavesmanagement;
 
 
 
 import java.time.LocalDate;
-import com.neb.util.EmployeeLeaveType;
 
-
-
-
-import com.neb.util.ApprovalStatus;
+import com.neb.enumclasses.ApprovalStatus;
+import com.neb.enumclasses.EmployeeLeaveType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

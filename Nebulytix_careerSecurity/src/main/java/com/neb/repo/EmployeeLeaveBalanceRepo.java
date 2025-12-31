@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.neb.entity.Employee;
 import com.neb.entity.EmployeeLeaveBalance;
-import com.neb.util.EmployeeLeaveType; // 👈 IMPORTANT: Correct import
+import com.neb.enumclasses.EmployeeLeaveType;
 
 public interface EmployeeLeaveBalanceRepo extends JpaRepository<EmployeeLeaveBalance, Long> {
 

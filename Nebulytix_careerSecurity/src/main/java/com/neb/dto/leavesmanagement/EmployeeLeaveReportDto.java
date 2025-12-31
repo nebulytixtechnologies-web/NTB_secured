@@ -1,4 +1,4 @@
-package com.neb.dto;
+package com.neb.dto.leavesmanagement;
 
 
 import java.time.Month;

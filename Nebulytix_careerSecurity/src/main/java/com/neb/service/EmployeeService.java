@@ -12,6 +12,8 @@ import com.neb.dto.employee.AddEmployeeRequest;
 import com.neb.dto.employee.EmployeeProfileDto;
 import com.neb.dto.employee.UpdateEmployeeRequestDto;
 import com.neb.dto.employee.UpdateEmployeeResponseDto;
+import com.neb.dto.leavesmanagement.EmployeeDTO;
+import com.neb.dto.leavesmanagement.EmployeeLeaveDTO;
 import com.neb.entity.*;
 
 public interface EmployeeService {
@@ -40,10 +42,10 @@ public interface EmployeeService {
     boolean deleteProfilePicture(Long employeeId);
 	public UpdateEmployeeResponseDto updateEmployee(Long employeeId, UpdateEmployeeRequestDto requestDto);
     
-    EmployeeDTO login(Long employeeId);
+   public EmployeeDTO webClockIn(Long employeeId);
 
 
-    EmployeeDTO logout(Long employeeId);
+   public  EmployeeDTO webClockOut(Long employeeId);
     
 //    public String applyLeave(EmployeeLeaveDTO empLeaveDto);
     public EmployeeLeaveDTO applyLeave(EmployeeLeaveDTO empLeaveDto);

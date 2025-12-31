@@ -19,12 +19,10 @@ import com.neb.dto.AddJobRequestDto;
 import com.neb.dto.EmployeeBankDetailsRequest;
 import com.neb.dto.EmployeeBankDetailsResponse;
 import com.neb.dto.EmployeeDetailsResponseDto;
-import com.neb.dto.EmployeeLeaveDTO;
-import com.neb.dto.EmployeeMonthlyReportDTO;
 import com.neb.dto.JobDetailsDto;
 import com.neb.dto.PayslipDto;
-import com.neb.dto.employee.UpdateEmployeeRequestDto;
-import com.neb.dto.employee.UpdateEmployeeResponseDto;
+import com.neb.dto.leavesmanagement.EmployeeLeaveDTO;
+import com.neb.dto.leavesmanagement.EmployeeMonthlyReportDTO;
 import com.neb.dto.salary.SalaryRequestDto;
 import com.neb.dto.salary.SalaryResponseDto;
 import com.neb.entity.DailyReport;
@@ -38,9 +36,15 @@ import com.neb.entity.Job;
 import com.neb.entity.JobApplication;
 import com.neb.entity.Payslip;
 import com.neb.entity.Users;
+import com.neb.enumclasses.ApprovalStatus;
+import com.neb.enumclasses.EmployeeDayStatus;
+import com.neb.enumclasses.EmployeeLeaveType;
 import com.neb.exception.CustomeException;
 import com.neb.exception.EmployeeNotFoundException;
+import com.neb.exception.InvalidActionException;
+import com.neb.exception.LeaveOperationException;
 import com.neb.exception.NoActiveSalaryException;
+import com.neb.exception.ResourceNotFoundException;
 import com.neb.exception.SalaryNotFoundException;
 import com.neb.repo.DailyReportRepository;
 import com.neb.repo.EmployeeBankDetailsRepository;
@@ -57,10 +61,6 @@ import com.neb.repo.PayslipRepository;
 import com.neb.repo.UsersRepository;
 import com.neb.service.EmailService;
 import com.neb.service.HrService;
-import com.neb.util.ApprovalStatus;
-import com.neb.util.EmployeeDayStatus;
-import com.neb.util.EmployeeDayStatus;
-import com.neb.util.EmployeeLeaveType;
 import com.neb.util.ReportGeneratorPdf;
 
 import jakarta.transaction.Transactional;
@@ -453,10 +453,12 @@ public class HrServiceImpl implements HrService {
 		public EmployeeLeaveDTO approvalOrReject(Long leaveId, ApprovalStatus status) {
 
 		    EmployeeLeaves leave = empLeavesRepo.findById(leaveId)
-		            .orElseThrow(() -> new RuntimeException("Invalid Leave Id"));
+		    		.orElseThrow(() -> new ResourceNotFoundException("Leave not found for ID: " + leaveId));
+
 
 		    if (leave.getLeaveStatus() != ApprovalStatus.PENDING) {
-		        throw new RuntimeException("Leave already processed");
+		    	throw new InvalidActionException("This leave is already processed");
+
 		    }
 
 		    if (status == ApprovalStatus.APPROVED) {
@@ -465,7 +467,7 @@ public class HrServiceImpl implements HrService {
 		                empLeaveBlnceRepo
 		                        .findByEmployeeAndLeaveTypeAndCurrentYear(
 		                                leave.getEmployee(),	
-		                                leave.getLeaveType(),   // 🔥 use leave's type
+		                                leave.getLeaveType(), 
 		                                LocalDate.now().getYear()
 		                        )
 		                        .orElseThrow(() ->
@@ -475,7 +477,8 @@ public class HrServiceImpl implements HrService {
 		        long remaining = balance.getTotalAllowed() - usedAfterApproval;
 
 		        if (remaining < 0) {
-		            throw new RuntimeException("Insufficient leave balance");
+		        	throw new LeaveOperationException("Insufficient leave balance");
+
 		        }
 
 		        balance.setUsed(usedAfterApproval);

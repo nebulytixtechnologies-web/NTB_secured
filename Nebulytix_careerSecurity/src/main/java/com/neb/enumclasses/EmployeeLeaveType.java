@@ -1,4 +1,4 @@
-package com.neb.util;
+package com.neb.enumclasses;
 
 public enum EmployeeLeaveType {
 	

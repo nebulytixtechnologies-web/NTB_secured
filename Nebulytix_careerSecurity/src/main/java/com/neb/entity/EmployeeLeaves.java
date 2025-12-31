@@ -3,11 +3,9 @@ package com.neb.entity;
 
 
 import java.time.LocalDate;
-import com.neb.util.EmployeeLeaveType; // ✔ correct package
 
-
-
-import com.neb.util.ApprovalStatus;
+import com.neb.enumclasses.ApprovalStatus;
+import com.neb.enumclasses.EmployeeLeaveType;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

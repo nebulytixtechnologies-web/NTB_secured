@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.neb.entity.Employee;
 import com.neb.entity.EmployeeLeaves;
-import com.neb.util.ApprovalStatus;
-import com.neb.util.EmployeeLeaveType;
+import com.neb.enumclasses.ApprovalStatus;
+import com.neb.enumclasses.EmployeeLeaveType;
 
 
 

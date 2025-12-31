@@ -22,14 +22,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import com.neb.dto.AddDailyReportRequestDto;
-import com.neb.dto.EmployeeDTO;
-import com.neb.dto.EmployeeLeaveDTO;
 import com.neb.dto.GeneratePayslipRequest;
 import com.neb.dto.PayslipDto;
-import com.neb.dto.ResponseDTO;
 import com.neb.dto.ResponseMessage;
 import com.neb.dto.WorkResponseDto;
 import com.neb.dto.employee.EmployeeProfileDto;
+import com.neb.dto.leavesmanagement.EmployeeDTO;
+import com.neb.dto.leavesmanagement.EmployeeLeaveDTO;
+import com.neb.dto.leavesmanagement.ResponseDTO;
 import com.neb.dto.project.ProjectsResponseDto;
 import com.neb.entity.Employee;
 import com.neb.entity.Payslip;
@@ -161,9 +161,9 @@ public class EmployeeController {
    
     @GetMapping("/webclockin/{employeeId}")
     public ResponseEntity<ResponseDTO<EmployeeDTO>> employeeLogin(
-            @PathVariable Long employeeId) { // 🔴 MODIFIED
+            @PathVariable Long employeeId) {
 
-        EmployeeDTO empDto = employeeService.login(employeeId);
+        EmployeeDTO empDto = employeeService.webClockIn(employeeId);
 
         ResponseDTO<EmployeeDTO> response =
                 new ResponseDTO<>(empDto, "Employee Login Successful", LocalDateTime.now());
@@ -173,9 +173,9 @@ public class EmployeeController {
 
     @GetMapping("/webclockout/{employeeId}")
     public ResponseEntity<ResponseDTO<EmployeeDTO>> employeeLogout(
-            @PathVariable Long employeeId) { // 🔴 MODIFIED
+            @PathVariable Long employeeId) { 
 
-        EmployeeDTO empDto = employeeService.logout(employeeId);
+        EmployeeDTO empDto = employeeService.webClockOut(employeeId);
 
         ResponseDTO<EmployeeDTO> response =
                 new ResponseDTO<>(empDto, "Employee logged out successfully", LocalDateTime.now());

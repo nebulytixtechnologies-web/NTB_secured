@@ -27,18 +27,18 @@ import com.neb.dto.EmailRequestDto;
 import com.neb.dto.EmployeeBankDetailsRequest;
 import com.neb.dto.EmployeeBankDetailsResponse;
 import com.neb.dto.EmployeeDetailsResponseDto;
-import com.neb.dto.EmployeeLeaveDTO;
-import com.neb.dto.EmployeeMonthlyReportDTO;
 import com.neb.dto.GeneratePayslipRequest;
 import com.neb.dto.JobDetailsDto;
 import com.neb.dto.PayslipDto;
-import com.neb.dto.ResponseDTO;
 import com.neb.dto.ResponseMessage;
 
 
 import com.neb.dto.employee.EmployeeProfileDto;
 import com.neb.dto.employee.UpdateEmployeeRequestDto;
 import com.neb.dto.employee.UpdateEmployeeResponseDto;
+import com.neb.dto.leavesmanagement.EmployeeLeaveDTO;
+import com.neb.dto.leavesmanagement.EmployeeMonthlyReportDTO;
+import com.neb.dto.leavesmanagement.ResponseDTO;
 import com.neb.dto.salary.SalaryRequestDto;
 import com.neb.dto.salary.SalaryResponseDto;
 import com.neb.dto.user.RegisterNewUerRequest;
@@ -49,6 +49,7 @@ import com.neb.entity.JobApplication;
 
 import com.neb.entity.JobApplication;
 import com.neb.entity.Payslip;
+import com.neb.enumclasses.ApprovalStatus;
 import com.neb.repo.EmployeeLeaveType;
 import com.neb.service.AdminService;
 
@@ -56,7 +57,6 @@ import com.neb.service.EmployeeService;
 import com.neb.service.HrService;
 
 import com.neb.service.UsersService;
-import com.neb.util.ApprovalStatus;
 
 
 @RestController

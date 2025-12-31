@@ -1,11 +1,11 @@
 package com.neb.entity;
 
 import com.neb.entity.Employee;
-import com.neb.util.EmployeeLeaveType;
+import com.neb.enumclasses.EmployeeLeaveType;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.neb.util.EmployeeLeaveType;
 
 
 
