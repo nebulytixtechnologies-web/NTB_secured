@@ -258,23 +258,85 @@ public class AdminServiceImpl implements AdminService{
 	public String deleteClient(Long id) {
 		
 		Client client = clientRepo.findById(id)
-				.orElseThrow(() -> new CustomeException("Client not found with id :"+id));
-		
-		// 2. Mark client inactive
-        client.setStatus("inactive");
+	            .orElseThrow(() ->
+	                    new CustomeException("Inactive client not found with id: " + id));
 
-        // 3. Disable related user
-        Users user = client.getUser();
-        if (user != null) {
-            user.setEnabled(false);
-            usersRepository.save(user); //  updates users table
-        }
+	    Users user = client.getUser();
 
-        // 4. Save client
-        clientRepo.save(client);
-        
-        return "Client and user account deactivated successfully";
+	    if (user != null && user.isEnabled()) {
+	        throw new CustomeException(
+	                "User must be disabled before deleting client with id: " + id);
+	    }
+
+	    // 🔴 Break FK relation
+	    client.setUser(null);
+
+	    // 1️⃣ delete client (child)
+	    clientRepo.delete(client);
+
+	    // 2️⃣ delete user (parent)
+	    if (user != null) {
+	        usersRepository.delete(user);
+	    }
+
+	    return "Client permanently deleted with id: " + id;
+
 	}
+	
+	@Override
+	public String disableClient(Long id) {
+		Client client = clientRepo.findById(id)
+	            .orElseThrow(() ->
+	                    new CustomeException("Client not found with id: " + id));
+
+	    if ("inactive".equalsIgnoreCase(client.getStatus())) {
+	        throw new CustomeException("Client is already inactive with id: " + id);
+	    }
+
+	    // Mark client inactive
+	    client.setStatus("inactive");
+
+	    // Disable related user
+	    Users user = client.getUser();
+	    if (user != null) {
+	        user.setEnabled(false);
+	        usersRepository.save(user);
+	    }
+
+	    clientRepo.save(client);
+
+	    return "Client and user account disabled successfully";
+
+	}
+
+	@Override
+	public String enableClient(Long id) {
+		Client client = clientRepo.findById(id)
+	            .orElseThrow(() ->
+	                    new CustomeException("Client not found with id: " + id));
+
+	    if ("active".equalsIgnoreCase(client.getStatus())) {
+	        throw new CustomeException("Client is already active with id: " + id);
+	    }
+
+	    // Activate client
+	    client.setStatus("active");
+
+	    // Enable related user
+	    Users user = client.getUser();
+	    if (user != null) {
+	        user.setEnabled(true);
+	        usersRepository.save(user);
+	    }
+
+	    clientRepo.save(client);
+
+	    return "Client and user account enabled successfully";
+
+	}
+
+	
+
 	
 	@Override
 	public EmployeeDetailsResponseDto getEmployee(Long id) {
@@ -520,6 +582,5 @@ public class AdminServiceImpl implements AdminService{
 	}
 
 	
-
 	
 }

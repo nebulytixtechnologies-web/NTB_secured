@@ -110,7 +110,7 @@ public class AdminController {
         );
     }
 
-	    // ✅ Get all Work of employee
+	    //  Get all Work of employee
 	    @GetMapping("/getAllWork/{empId}")
 	    public ResponseEntity<ResponseMessage<List<WorkResponseDto>>> getAllWork(@PathVariable Long empId) {
 	        List<WorkResponseDto> works = adminService.getAllWorks(empId);
@@ -149,6 +149,17 @@ public class AdminController {
 	    	return ResponseEntity.ok(new ResponseMessage<>(200, "OK", "Client deleted successfully", deleteRes));
 	    }
 	    
+	    @PutMapping("client/disable/{id}")
+	    public ResponseEntity<ResponseMessage<?>> disableClient(@PathVariable Long id) {
+	        String msg = adminService.disableClient(id);
+	        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", "Client disabled successfully",msg));
+	    }
+
+	    @PutMapping("client/enable/{id}")
+	    public ResponseEntity<ResponseMessage<?>> enableClient(@PathVariable Long id) {
+	        String msg = adminService.enableClient(id);
+	        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", "Client enabled successfully", msg));
+	    }
 	    @GetMapping("/getEmp/{id}")
 		public ResponseEntity<ResponseMessage<EmployeeDetailsResponseDto>> getEmployee(@PathVariable Long id){
 			
@@ -169,9 +180,7 @@ public class AdminController {
 	            .filename("payslip_" + id + ".pdf")
 	            .build());
 
-	        return ResponseEntity.ok()
-	                             .headers(headers)
-	                             .body(pdf);
+	        return ResponseEntity.ok().headers(headers).body(pdf);
 	    }
 
 	    

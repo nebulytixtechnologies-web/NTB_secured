@@ -141,4 +141,6 @@ public class ClientServiceImpl implements ClientService{
 
         return dailyReportRepository.findByEmployee_Project_Id(projectId);
     }
+
+	
 }
