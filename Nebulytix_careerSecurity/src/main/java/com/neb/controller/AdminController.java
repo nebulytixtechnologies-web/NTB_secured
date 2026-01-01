@@ -160,6 +160,7 @@ public class AdminController {
 	        String msg = adminService.enableClient(id);
 	        return ResponseEntity.ok(new ResponseMessage<>(200, "OK", "Client enabled successfully", msg));
 	    }
+	    
 	    @GetMapping("/getEmp/{id}")
 		public ResponseEntity<ResponseMessage<EmployeeDetailsResponseDto>> getEmployee(@PathVariable Long id){
 			
