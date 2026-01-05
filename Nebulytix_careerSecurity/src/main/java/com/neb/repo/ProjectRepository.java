@@ -32,7 +32,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             LEFT JOIN FETCH p.employees
             WHERE p.id = :projectId
         """)
-        Optional<Project> findProjectWithClientAndEmployees(
-                @Param("projectId") Long projectId
-        );
+    public  Optional<Project> findProjectWithClientAndEmployees(@Param("projectId") Long projectId);
+    
+   
 }

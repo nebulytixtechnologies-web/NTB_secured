@@ -11,4 +11,5 @@ import com.neb.entity.EmployeeSalary;
 public interface EmployeeSalaryRepository extends JpaRepository<EmployeeSalary, Long> {
     public Optional<EmployeeSalary> findByEmployeeIdAndActiveTrue(Long employeeId);
     public List<EmployeeSalary> findByActiveTrue();
+    List<EmployeeSalary> findByEmployeeIdOrderByEffectiveFromDesc(Long employeeId);
 }

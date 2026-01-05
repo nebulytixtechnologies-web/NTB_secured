@@ -84,4 +84,16 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
       @Query("SELECT e FROM Employee e WHERE e.id = :id AND e.empStatus='inactive'")
      public Optional<Employee> findByIdIncludingInactive(@Param("id") Long id);
       
+     
+
+          @Query("""
+              SELECT DISTINCT e
+              FROM Employee e
+              LEFT JOIN FETCH e.bankDetails
+              WHERE e.id = :employeeId
+          """)
+        public  Optional<Employee> findEmployeeFullDetails(@Param("employeeId") Long employeeId);
+
+
+
 }

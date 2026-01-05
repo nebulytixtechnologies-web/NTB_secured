@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -16,20 +17,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.neb.dto.AddJobRequestDto;
-import com.neb.dto.EmployeeBankDetailsRequest;
-import com.neb.dto.EmployeeBankDetailsResponse;
 import com.neb.dto.EmployeeDetailsResponseDto;
 import com.neb.dto.EmployeeLeaveDTO;
 import com.neb.dto.EmployeeMonthlyReportDTO;
 import com.neb.dto.JobDetailsDto;
 import com.neb.dto.PayslipDto;
-import com.neb.dto.employee.UpdateEmployeeRequestDto;
-import com.neb.dto.employee.UpdateEmployeeResponseDto;
 import com.neb.dto.salary.SalaryRequestDto;
 import com.neb.dto.salary.SalaryResponseDto;
 import com.neb.entity.DailyReport;
 import com.neb.entity.Employee;
-import com.neb.entity.EmployeeBankDetails;
 import com.neb.entity.EmployeeLeaveBalance;
 import com.neb.entity.EmployeeLeaves;
 import com.neb.entity.EmployeeMonthlyReport;
@@ -54,11 +50,11 @@ import com.neb.repo.EmployeeSalaryRepository;
 import com.neb.repo.JobApplicationRepository;
 import com.neb.repo.JobRepository;
 import com.neb.repo.PayslipRepository;
+import com.neb.repo.ProjectRepository;
 import com.neb.repo.UsersRepository;
 import com.neb.service.EmailService;
 import com.neb.service.HrService;
 import com.neb.util.ApprovalStatus;
-import com.neb.util.EmployeeDayStatus;
 import com.neb.util.EmployeeDayStatus;
 import com.neb.util.EmployeeLeaveType;
 import com.neb.util.ReportGeneratorPdf;
@@ -68,7 +64,8 @@ import jakarta.transaction.Transactional;
 @Service
 public class HrServiceImpl implements HrService {
 
-    @Autowired
+   
+	@Autowired
     private EmployeeRepository empRepo;
     @Autowired
 	private EmployeeLeaveBalanceRepo empLeaveBlnceRepo;
@@ -96,6 +93,10 @@ public class HrServiceImpl implements HrService {
     private EmployeeBankDetailsRepository bankRepo;
     @Autowired
     private EmployeeLeaveRepository empLeavesRepo;
+    
+    @Autowired
+    private ProjectRepository projectRepo;
+    
 
     @Value("${daily-report.folder-path}")
     private String dailyReportFolderPath;
@@ -104,8 +105,85 @@ public class HrServiceImpl implements HrService {
     public EmployeeDetailsResponseDto getEmployee(Long id) {
         Employee emp = empRepo.findById(id).orElseThrow(() -> new CustomeException("Employee not found with id: " + id));
         return mapper.map(emp, EmployeeDetailsResponseDto.class);
+//    	
+//    	Employee employeeDetail = empRepo.findEmployeeFullDetails(id)
+//    	        .orElseThrow(() -> new CustomeException("Employee not found"));
+//
+//    	EmployeeFullDetailResponseDto response = new EmployeeFullDetailResponseDto();
+//
+//    	/* =========================
+//    	   1. BASIC EMPLOYEE DETAILS
+//    	   ========================= */
+//    	EmployeeProfileDto employeeDto = mapper.map(employeeDetail, EmployeeProfileDto.class);
+//        
+//    	System.out.println(employeeDto);
+//       // override mismatched fields
+//    	if (employeeDetail.getUser() != null) {
+//    		employeeDto.setEmail(employeeDetail.getUser().getEmail());
+//    	    employeeDto.setUserEnabled(employeeDetail.getUser() != null && employeeDetail.getUser().isEnabled());
+//    	}
+//        response.setEmployee(employeeDto);
+//
+//    	/* =========================
+//    	   2. BANK DETAILS
+//    	   ========================= */
+//    	if (employeeDetail.getBankDetails() != null) {
+//    	    EmployeeBankDetailsResponse bankDto = mapper.map(employeeDetail.getBankDetails(), EmployeeBankDetailsResponse.class);
+//    	    System.out.println("  bank ===> "+bankDto);
+//    	    response.setBankDetail(bankDto);
+//    	}
+//
+//    	/* =========================
+//    	   3. SALARY DETAILS
+//    	   ========================= */
+//    	List<EmployeeSalary> salaries = salRepo.findByEmployeeIdOrderByEffectiveFromDesc(id);
+//          System.out.println("   salary"+salaries);
+//        List<SalaryResponseDto> salaryDtos = salaries.stream()
+//                .map(salary -> {
+//                    SalaryResponseDto dto =
+//                            mapper.map(salary, SalaryResponseDto.class);
+//                    dto.setEmployeeId(id);
+//                    return dto;
+//                })
+//                .collect(Collectors.toList());
+//             response.setSalaries(salaryDtos);
+//
+//    	    // ✅ ACTIVE SALARY
+//    	    SalaryResponseDto activeSalary = getActiveSalary(id);
+//    	    System.out.println(activeSalary);
+//    	    SalaryResponseDto activeSal = mapper.map(activeSalary,SalaryResponseDto.class);
+//    	    response.setActiveSalary(activeSal);
+//    	    
+//    
+//          /* =========================
+//    	   4. ALL PROJECTS
+//    	   ========================= */
+//    	 List<ProjectResponseDto> listProj = projectRepo.findProjectsByEmployeeId(id).stream()
+//    	        .map(project -> {
+//    	        	ProjectResponseDto dto = mapper.map(project, ProjectResponseDto.class);
+//    	        	dto.setClientId(
+// 	                project.getClient() != null ? project.getClient().getId() : null
+// 	                );
+//    	          return dto;	
+//    	        })
+//    	        .toList();
+//    	 
+//       	 response.setProjects(listProj);
+//    	 
+//    	    /* =========================
+//    	       5. ACTIVE PROJECT
+//    	       ========================= */
+//    	    
+//    	    Project project = employeeDetail.getProject();
+//    	    if(project != null)
+//    	    {
+//    	    	ProjectResponseDto projDto = mapper.map(project, ProjectResponseDto.class);
+//    	    	response.setActiveProject(projDto);
+//    	    }
+//    
+//
+//    	return response;
     }
-
     @Override
     public String deleteById(Long id) {
     	    Employee employee = empRepo.findByIdIncludingInactive(id)
@@ -379,10 +457,13 @@ public class HrServiceImpl implements HrService {
 
 	@Override
 	public SalaryResponseDto getActiveSalary(Long employeeId) {
-		EmployeeSalary salary = salRepo.findByEmployeeIdAndActiveTrue(employeeId)
-                                .orElseThrow(() ->new SalaryNotFoundException("Active salary not found for employeeId: " + employeeId));
-
-       return mapper.map(salary, SalaryResponseDto.class);
+		  Optional<EmployeeSalary> salaryopt = salRepo.findByEmployeeIdAndActiveTrue(employeeId);
+             if(salaryopt != null) {
+            	 return mapper.map(salaryopt.get(), SalaryResponseDto.class); 
+             }
+             else {
+            	 return null;
+             }
 	}
 
 	@Override
