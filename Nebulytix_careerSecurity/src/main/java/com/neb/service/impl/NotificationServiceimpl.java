@@ -22,7 +22,7 @@ public class NotificationServiceimpl implements NotificationService
 
         Notification n = new Notification();
 
-        // ✅ MOST IMPORTANT LINE
+       
         n.setEmployee(leave.getEmployee());
         System.out.println("Employee ID = " + leave.getEmployee().getId());
 
@@ -48,7 +48,7 @@ public class NotificationServiceimpl implements NotificationService
 
         Notification n = new Notification();
 
-        // ✅ SET ENTITY, NOT ID
+        
         n.setEmployee(leave.getEmployee());
 
         n.setRole("EMPLOYEE");

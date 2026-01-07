@@ -24,6 +24,7 @@ import com.neb.entity.Project;
 import com.neb.entity.ProjectDocument;
 import com.neb.exception.CustomeException;
 import com.neb.exception.EmployeeNotFoundException;
+import com.neb.exception.FileStorageException;
 import com.neb.exception.ResourceNotFoundException;
 import com.neb.repo.ClientRepository;
 import com.neb.repo.EmployeeRepository;
@@ -56,6 +57,8 @@ public class ProjectServiceImpl implements ProjectService {
     
     @Autowired
     private ModelMapper mapper;
+//    @Value("${project.file.upload-dir}")
+//    private String uploadDir;
     @Value("${project.file.upload-dir}")
     private String uploadDir;
     
@@ -276,26 +279,6 @@ public class ProjectServiceImpl implements ProjectService {
             doc.setProject(savedProject);
             docRepo.save(doc);
         }
-        // ✅ Files stored in projects/
-        project.setQuotationPdfUrl(storeFile(quotation));
-        project.setRequirementDocUrl(storeFile(requirement));
-        
-        project.setRequirementDocUrl(storeFile(contract));
-        project.setContractPdfUrl(storeFile(contract));
-
-        return projectRepository.save(project);
-    }
-    
-   //  Store file inside projects/ directory
-   private String storeFile(MultipartFile file) {
-        try {
-            if (file == null || file.isEmpty()) {
-                throw new FileStorageException("Cannot store empty file");
-            }
-
-            // Sanitize filename
-            String safeFileName =
-                    file.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
 
         if (requirement != null && !requirement.isEmpty()) {
             String path = FileUtil.upload(requirement, uploadDir);
