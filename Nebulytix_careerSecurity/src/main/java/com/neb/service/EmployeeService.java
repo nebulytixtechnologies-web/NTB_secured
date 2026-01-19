@@ -6,13 +6,19 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
-
-import com.neb.dto.*;
+import com.neb.dto.AddDailyReportRequestDto;
+import com.neb.dto.EmployeeDTO;
+import com.neb.dto.EmployeeLeaveDTO;
+import com.neb.dto.EmployeeRegulationDTO;
+import com.neb.dto.WorkResponseDto;
 import com.neb.dto.employee.AddEmployeeRequest;
 import com.neb.dto.employee.EmployeeProfileDto;
 import com.neb.dto.employee.UpdateEmployeeRequestDto;
 import com.neb.dto.employee.UpdateEmployeeResponseDto;
-import com.neb.entity.*;
+import com.neb.entity.Employee;
+import com.neb.entity.Payslip;
+import com.neb.entity.Users;
+import com.neb.entity.Work;
 
 public interface EmployeeService {
 
@@ -30,10 +36,11 @@ public interface EmployeeService {
     public String uploadProfilePicture(Long employeeId, MultipartFile file);
     public boolean deleteProfilePicture(Long employeeId);
 	public UpdateEmployeeResponseDto updateEmployee(Long employeeId, UpdateEmployeeRequestDto requestDto);
-    public EmployeeDTO login(Long employeeId);
-    public EmployeeDTO logout(Long employeeId);
-    public EmployeeLeaveDTO applyLeave(EmployeeLeaveDTO empLeaveDto);
+	public EmployeeDTO webClockin( Long employeeId) ;
+	public EmployeeDTO webClockout(Long employeeId);
+	public EmployeeLeaveDTO applyLeave(EmployeeLeaveDTO dto);
     public EmployeeLeaveDTO applyWFH(EmployeeLeaveDTO wfh);
-    
+    public String regularize(EmployeeRegulationDTO regulation);
+	
 
 }

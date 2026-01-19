@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 
 import com.neb.dto.AddJobRequestDto;
 import com.neb.dto.AssignLeaveBalanceDTO;
@@ -29,6 +31,7 @@ import com.neb.dto.EmployeeDetailsResponseDto;
 import com.neb.dto.EmployeeLeaveBalanceDTO;
 import com.neb.dto.EmployeeLeaveDTO;
 import com.neb.dto.EmployeeMonthlyReportDTO;
+import com.neb.dto.EmployeeRegulationDTO;
 import com.neb.dto.GeneratePayslipRequest;
 import com.neb.dto.JobDetailsDto;
 import com.neb.dto.PayslipDto;
@@ -340,8 +343,31 @@ public class HrController {
 
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/regulation/approval/{id}/{misPunchDate}/{status}")
+    public ResponseEntity<ResponseDTO<String>> regulationApprovalOrReject(
+            @PathVariable("id") Long employeeId,
+            @PathVariable LocalDate misPunchDate,
+            @PathVariable ApprovalStatus status) {
 
-	
+        String regResponse = service.regulationRejectOrApproval(employeeId, misPunchDate, status);
+        return ResponseEntity.ok(
+            new ResponseDTO<>("Regulation Updated Successfully", regResponse)
+        );
+    }
+
+
+    @GetMapping("/regulation")
+	public ResponseEntity<ResponseDTO<List<EmployeeRegulationDTO>>> regulationList(
+	        @RequestParam(required = false) ApprovalStatus status) {
+
+	    List<EmployeeRegulationDTO> data =
+	    		service.regulation(status);
+
+	    ResponseDTO<List<EmployeeRegulationDTO>> response =
+	            new ResponseDTO<>("Regulation list fetched successfully", data);
+
+	    return new ResponseEntity<>(response, HttpStatus.OK);
+	}
 	 
 
 }

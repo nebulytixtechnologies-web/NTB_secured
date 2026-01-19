@@ -60,7 +60,7 @@ public class AuthService {
     // LOGIN --------------------------------------------------------------------
     public AuthResponse login(LoginRequest req) {
 
-        // 1. Validate credentials using AuthenticationManager
+        //  Validate credentials using AuthenticationManager
         Authentication auth = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword())
         );
@@ -69,7 +69,7 @@ public class AuthService {
             throw new RuntimeException("Invalid credentials");
         }
 
-        // 2. Fetch user from DB
+        //  Fetch user from DB
         Users user = usersRepository.findByEmail(req.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -78,13 +78,13 @@ public class AuthService {
                 .map(Enum::name)
                 .collect(Collectors.toSet());
 
-        // 4. Create access token
+        //  Create access token
         String accessToken = jwtService.generateToken(user.getEmail());
 
-        // 5. Create refresh token object
+        //  Create refresh token object
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 
-        // 6. Prepare response
+        //  Prepare response
         AuthResponse resp = new AuthResponse();
         resp.setAccessToken(accessToken);
         resp.setRefreshToken(refreshToken.getToken());

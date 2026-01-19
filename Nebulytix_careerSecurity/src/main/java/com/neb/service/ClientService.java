@@ -17,7 +17,6 @@ public interface ClientService {
     public ClientProfileDto getMyProfile();
 	public Long createClient(AddClientRequest addClientReq, Users user);
     public List<Project> getProjectsForLoggedInClient();
-//    public String getProjectStatus(Long projectId);
     public ProjectStatus getProjectStatus(Long projectId);
     public List<EmployeeProfileDto> getEmployeesByProject(Long projectId);
     public WorkResponseDto assignWorkToEmployee(Long projectId, AddWorkRequestDto dto);

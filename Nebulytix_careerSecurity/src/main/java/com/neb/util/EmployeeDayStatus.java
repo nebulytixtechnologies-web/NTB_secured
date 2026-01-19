@@ -1,6 +1,6 @@
 package com.neb.util;
 
 public enum EmployeeDayStatus {
-	PRESENT,ABSENT,LEAVE,WFH,HALFDAY
+	PRESENT,ABSENT,LEAVE,WFH,HALFDAY,WEEKEND
 
 }

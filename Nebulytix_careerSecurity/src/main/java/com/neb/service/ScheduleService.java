@@ -16,15 +16,15 @@ import com.neb.entity.Schedule;
 
 public interface ScheduleService {
 
-    // ✅ Create or update a schedule
+    // Create or update a schedule
     Schedule createSchedule(Schedule schedule);
 
-    // ✅ Get all schedules
+    //  Get all schedules
     List<Schedule> getAllSchedules();
 
-    // ✅ Get schedules by employee ID
+    //  Get schedules by employee ID
     List<Schedule> getSchedulesByEmployee(Long employeeId);
 
-    // ✅ Delete a schedule by ID
+    //  Delete a schedule by ID
     void deleteSchedule(Long id);
 }

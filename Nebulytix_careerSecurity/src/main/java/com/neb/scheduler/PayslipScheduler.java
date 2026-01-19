@@ -55,10 +55,10 @@ public class PayslipScheduler {
 
         System.out.println(">>>>>>>>>>monthYear: " + monthYear);
 
-        // ✅ Loop through each employee and generate payslip
+        //Loop through each employee and generate payslip
         for (Employee emp : employees) {
 
-            // ✅ Updated exception handling (Old block replaced here)
+            //  Updated exception handling (Old block replaced here)
             try {
                 employeeService.generatePayslip(emp.getId(), monthYear);
                 System.out.println("✅ Payslip generated for: " + emp.getFirstName() + " (" + monthYear + ")");

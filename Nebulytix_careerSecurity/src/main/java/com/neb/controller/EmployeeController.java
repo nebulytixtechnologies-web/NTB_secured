@@ -25,6 +25,7 @@ import com.neb.dto.AddDailyReportRequestDto;
 import com.neb.dto.EmployeeBankDetailsResponse;
 import com.neb.dto.EmployeeDTO;
 import com.neb.dto.EmployeeLeaveDTO;
+import com.neb.dto.EmployeeRegulationDTO;
 import com.neb.dto.GeneratePayslipRequest;
 import com.neb.dto.PayslipDto;
 import com.neb.dto.ResponseDTO;
@@ -37,8 +38,6 @@ import com.neb.entity.Payslip;
 import com.neb.entity.Work;
 import com.neb.service.EmployeeBankDetailsService;
 import com.neb.service.EmployeeService;
-
-//import com.neb.service.LeaveService;
 import com.neb.service.ProjectService;
 
 @RestController
@@ -134,38 +133,67 @@ public class EmployeeController {
         return ResponseEntity.ok(new ResponseMessage<>(HttpStatus.OK.value(), HttpStatus.OK.name(),"All Project fetched successfully based on emp id ", projects));
     }
    
-    @GetMapping("/webclockin/{employeeId}")
-    public ResponseEntity<ResponseDTO<EmployeeDTO>> employeeLogin(@PathVariable Long employeeId) { //  MODIFIED
 
-        EmployeeDTO empDto = employeeService.login(employeeId);
-        ResponseDTO<EmployeeDTO> response =new ResponseDTO<>(empDto, "Employee Login Successful", LocalDateTime.now());
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+   	@GetMapping("/webclockin/{employeeId}")
+   	public ResponseEntity<ResponseDTO<EmployeeDTO>> employeeLogin(@PathVariable Long employeeId){
+   		
+   		EmployeeDTO empDto = employeeService.webClockin(employeeId);
+   		
+   		ResponseDTO<EmployeeDTO> empResponseDto = new ResponseDTO<>("Employee Login Successfull",empDto);
+   		
+   		return new ResponseEntity<ResponseDTO<EmployeeDTO>>(empResponseDto,HttpStatus.OK);
+   		
+   	}
+   	
+   	/**
+   	 * 
+   	 * @param id
+   	 * @return
+   	 */
+   	@GetMapping("/webclockout/{employeeId}")
+   	public ResponseEntity<ResponseDTO<EmployeeDTO>> employeeLogout(
+   	        @PathVariable Long employeeId) {
 
-    @GetMapping("/webclockout/{employeeId}")
-    public ResponseEntity<ResponseDTO<EmployeeDTO>> employeeLogout(@PathVariable Long employeeId) { //  MODIFIED
+   	    EmployeeDTO empDto = employeeService.webClockout(employeeId);
 
-         EmployeeDTO empDto = employeeService.logout(employeeId);
-         ResponseDTO<EmployeeDTO> response = new ResponseDTO<>(empDto, "Employee logged out successfully", LocalDateTime.now());
-         return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-    
-    @PostMapping("/apply-leave")
-    public ResponseEntity<ResponseDTO<EmployeeLeaveDTO>> applyLeave(@RequestBody EmployeeLeaveDTO empLeaveDto) {
+   	    ResponseDTO<EmployeeDTO> response =
+   	            new ResponseDTO<>(
+   	                    "Employee logged out successfully",
+   	                    empDto
+   	            );
 
-        EmployeeLeaveDTO applyLeave = employeeService.applyLeave(empLeaveDto);
-          System.out.println("===> "+applyLeave);
-        ResponseDTO<EmployeeLeaveDTO> response = new ResponseDTO<>(applyLeave, "Leave Applied Successfully", LocalDateTime.now());
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @PostMapping("/apply-wfh")
-    public ResponseEntity<ResponseDTO<EmployeeLeaveDTO>> applyWFH(@RequestBody EmployeeLeaveDTO wfhDto) {
-
-        EmployeeLeaveDTO applyWFH = employeeService.applyWFH(wfhDto);
-        ResponseDTO<EmployeeLeaveDTO> response = new ResponseDTO<>(applyWFH, "Work From Home Applied Successfully", LocalDateTime.now());
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+   	    return new ResponseEntity<>(response, HttpStatus.OK);
+   	}
+   		
+   	/**
+   	 * @param empLeaveDto
+   	 * @return
+   	 */
+   	@PostMapping("/apply-leave")
+   	public ResponseEntity<ResponseDTO<EmployeeLeaveDTO>> applyLeave(@RequestBody EmployeeLeaveDTO empLeaveDto) {
+   		 EmployeeLeaveDTO applyLeave = employeeService.applyLeave(empLeaveDto);
+   		return ResponseEntity
+   				.ok(new ResponseDTO<>("Leave Applied Successfully",applyLeave));
+   	}
+   	
+   	/**
+   	 * @param wfhDto
+   	 * @return
+   	 */
+   	@PostMapping("/apply-wfh")
+   	public ResponseEntity<ResponseDTO<EmployeeLeaveDTO>> applyWFH(@RequestBody EmployeeLeaveDTO wfhDto){
+   		EmployeeLeaveDTO applyWFH = employeeService.applyWFH(wfhDto);
+   		ResponseDTO<EmployeeLeaveDTO> response = new ResponseDTO<>
+   													("Work From Home Applied Successfully",applyWFH);
+   		
+   		return new ResponseEntity<>(response,HttpStatus.OK);
+   	}
+   	
+   	@PostMapping("/regulation")
+   	public ResponseEntity<ResponseDTO<String>> applyRegulationForLeaveOrWFH(@RequestBody EmployeeRegulationDTO regulation){
+   		
+   		return ResponseEntity.ok(new ResponseDTO<>(employeeService.regularize(regulation), "Applied Succesfully"));
+   	}
 
     @GetMapping("get/{id}/bank-detail")
     public ResponseEntity<ResponseMessage<EmployeeBankDetailsResponse>> getBankDetails(@PathVariable Long id) {

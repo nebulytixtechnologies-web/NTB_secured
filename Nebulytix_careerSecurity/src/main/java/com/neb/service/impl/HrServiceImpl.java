@@ -5,7 +5,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.neb.dto.EmployeeRegulationDTO;
 import com.neb.dto.AddJobRequestDto;
 import com.neb.dto.AssignLeaveBalanceDTO;
 import com.neb.dto.EmployeeDetailsResponseDto;
@@ -38,6 +41,7 @@ import com.neb.entity.EmployeeMonthlyReport;
 import com.neb.entity.EmployeeSalary;
 import com.neb.entity.Job;
 import com.neb.entity.JobApplication;
+import com.neb.entity.MisPunchRequest;
 import com.neb.entity.Payslip;
 import com.neb.entity.Users;
 import com.neb.exception.CustomeException;
@@ -57,7 +61,9 @@ import com.neb.repo.EmployeeMontlyReportRepo;
 import com.neb.repo.EmployeeRepository;
 import com.neb.repo.EmployeeSalaryRepository;
 import com.neb.repo.JobApplicationRepository;
+
 import com.neb.repo.JobRepository;
+import com.neb.repo.MisPunchRequestRepo;
 import com.neb.repo.PayslipRepository;
 import com.neb.repo.ProjectRepository;
 import com.neb.repo.UsersRepository;
@@ -109,7 +115,10 @@ public class HrServiceImpl implements HrService {
     
     @Autowired
     private ProjectRepository projectRepo;
-    
+//    @Autowired
+//    private MisPunchRequestRepo MisPunchRequestRepo;
+    @Autowired
+    private MisPunchRequestRepo MisPunchRequestRepo;
 
     @Value("${daily-report.folder-path}")
     private String dailyReportFolderPath;
@@ -344,11 +353,11 @@ public class HrServiceImpl implements HrService {
 	@Override
 	public void deletePayslip(Long id) {
 		
-		// 1 Find payslip
+		//  Find payslip
         Payslip payslip = payslipRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Payslip not found with ID: " + id));
 
-        // 2 Delete file from filesystem
+        //  Delete file from filesystem
         if (payslip.getPdfPath() != null) {
 
             File file = new File(payslip.getPdfPath());
@@ -361,7 +370,7 @@ public class HrServiceImpl implements HrService {
             }
         }
 
-        // 3 Delete DB record
+        //  Delete DB record
         payslipRepo.delete(payslip);
 
         
@@ -471,55 +480,7 @@ public class HrServiceImpl implements HrService {
 			return employeeLeavePendingDto;
 		}
 
-//		@Transactional
-//		public EmployeeLeaveDTO approvalOrReject(Long leaveId, ApprovalStatus status) {
-//
-//		    EmployeeLeaves leave = empLeavesRepo.findById(leaveId)
-//		            .orElseThrow(() ->  new ResourceNotFoundException("Leave not found for ID: " + leaveId));
-//
-//		    if (leave.getLeaveStatus() != ApprovalStatus.PENDING) {
-//		    	throw new InvalidActionException("This leave is already processed");
-//		    }
-//
-//		    if (status == ApprovalStatus.APPROVED) {
-//
-//		        EmployeeLeaveBalance balance =
-//		                empLeaveBlnceRepo
-//		                        .findByEmployeeAndLeaveTypeAndCurrentYear(
-//		                                leave.getEmployee(),	
-//		                                leave.getLeaveType(),   
-//		                                LocalDate.now().getYear()
-//		                        )
-//		                        .orElseThrow(() ->
-//		                                new RuntimeException("Leave balance not found"));
-//
-//		        long usedAfterApproval = balance.getUsed() + leave.getTotalDays();
-//		        long remaining = balance.getTotalAllowed() - usedAfterApproval;
-//
-//		        if (remaining < 0) {
-//		        	throw new LeaveOperationException("Insufficient leave balance");
-//		        }
-//
-//		        balance.setUsed(usedAfterApproval);
-//		        balance.setRemaining(remaining);
-//
-//		        empLeaveBlnceRepo.save(balance);
-//		    }
-//
-//		    leave.setLeaveStatus(status);
-//		    EmployeeLeaves savedLeave = empLeavesRepo.save(leave);
-//
-//		    return new EmployeeLeaveDTO(
-//		            savedLeave.getEmployee().getId(),
-//		            savedLeave.getId(),
-//		            savedLeave.getLeaveType(),
-//		            savedLeave.getStartDate(),
-//		            savedLeave.getEndDate(),
-//		            savedLeave.getReason(),
-//		            savedLeave.getTotalDays(),
-//		            savedLeave.getLeaveStatus()
-//		    );
-//		}
+
     @Transactional
     public EmployeeLeaveDTO approvalOrReject(Long leaveId, ApprovalStatus status) {
 
@@ -780,6 +741,63 @@ public class HrServiceImpl implements HrService {
 		     return new TodayAttendanceCountDTO(presentCount, wfhCount);
 		 }
 
+		 public String regulationRejectOrApproval(Long EmployeeId, LocalDate misPunchDate, ApprovalStatus status) {
+
+			    Employee employee = empRepo.findById(EmployeeId)
+			            .orElseThrow(() -> new EmployeeNotFoundException("Invalid Id"));
+
+			    MisPunchRequest empRegDetails = MisPunchRequestRepo
+			            .findByEmployeeAndPunchDate(employee, misPunchDate)
+			            .orElseThrow(() -> new RuntimeException("No MisPunch record found"));
+
+			    if (empRegDetails.getStatus() != ApprovalStatus.PENDING) {
+			        return "Already approved as " + empRegDetails.getStatus();
+			    }
+
+			    empRegDetails.setActionAt(LocalDateTime.now());
+			    empRegDetails.setStatus(status);
+
+			    if (status == ApprovalStatus.APPROVED) {
+			        EmployeeLogInDetails empLoginDetails = empLoginRepo
+			                .findByLoginDateAndEmployee(misPunchDate, employee)
+			                .orElseThrow(() -> new RuntimeException("Login record not found"));
+
+			        empLoginDetails.setDayStatus(EmployeeDayStatus.PRESENT.toString());
+			        empLoginDetails.setLoginTime(empRegDetails.getLoginTime());
+			        empLoginDetails.setLogoutTime(empRegDetails.getLogoutTime());
+
+			        Duration duration = Duration.between(
+			                empRegDetails.getLoginTime(),
+			                empRegDetails.getLogoutTime()
+			        );
+
+			        String formatted = String.format(
+			                "%02d:%02d:%02d",
+			                duration.toHours(),
+			                duration.toMinutes() % 60,
+			                duration.getSeconds() % 60
+			        );
+
+			        empLoginDetails.setTotalTime(formatted);
+			        empLoginRepo.save(empLoginDetails);
+			    }
+
+			    MisPunchRequestRepo.save(empRegDetails);
+
+			    return employee.getId() + " regulated successfully";
+			}
+
+
+		 public List<EmployeeRegulationDTO> regulation(ApprovalStatus status) {
+
+			    ApprovalStatus effectiveStatus =
+			            (status == null) ? ApprovalStatus.PENDING : status;
+
+			    return MisPunchRequestRepo.findAllByStatus(effectiveStatus)
+			            .stream()
+			            .map(EmployeeRegulationDTO::new)
+			            .toList();
+			}
 
 
 }

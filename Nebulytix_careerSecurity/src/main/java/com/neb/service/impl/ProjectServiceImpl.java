@@ -73,7 +73,7 @@ public class ProjectServiceImpl implements ProjectService {
 
                     ProjectsResponseDto dto = new ProjectsResponseDto();
 
-                    // 🔹 Project fields
+                    //  Project fields
                     dto.setId(project.getId());
                     dto.setProjectName(project.getProjectName());
                     dto.setProjectCode(project.getProjectCode());
@@ -90,7 +90,7 @@ public class ProjectServiceImpl implements ProjectService {
                     dto.setContractPdfUrl(project.getContractPdfUrl());
                     dto.setRequirementDocUrl(project.getRequirementDocUrl());
 
-                    // ✅ CLIENT MAPPING
+                    //  CLIENT MAPPING
                     if (project.getClient() != null) {
                         Client client = project.getClient();
 
@@ -133,7 +133,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     	    ProjectsResponseDto dto = new ProjectsResponseDto();
 
-    	    // 🔹 Project fields
+    	    //  Project fields
     	    dto.setId(project.getId());
     	    dto.setProjectName(project.getProjectName());
     	    dto.setProjectCode(project.getProjectCode());
@@ -150,7 +150,7 @@ public class ProjectServiceImpl implements ProjectService {
     	    dto.setContractPdfUrl(project.getContractPdfUrl());
     	    dto.setRequirementDocUrl(project.getRequirementDocUrl());
 
-    	    // ✅ CLIENT MAPPING (NO fromEntity)
+    	    //  CLIENT MAPPING (NO fromEntity)
     	    if (project.getClient() != null) {
     	        Client client = project.getClient();
 
@@ -171,7 +171,7 @@ public class ProjectServiceImpl implements ProjectService {
     	        dto.setClient(clientDto);
     	    }
 
-    	    // ✅ EMPLOYEE LIST MAPPING (NO fromEntity)
+    	    //  EMPLOYEE LIST MAPPING (NO fromEntity)
     	    if (project.getEmployees() != null && !project.getEmployees().isEmpty()) {
     	        List<EmployeeProfileDto> employeeDtos = clientService.getEmployeesByProject(id);
     	        dto.setEmployees(employeeDtos);

@@ -50,14 +50,6 @@ public class ClientController {
         List<Project> projects = clientService.getProjectsForLoggedInClient();
         return ResponseEntity.ok(new ResponseMessage<>(200, "SUCCESS", "Client projects fetched successfully", projects));
     }
-
-    //  Get status of a specific project
-//    @PreAuthorize("hasRole('CLIENT')")
-//    @GetMapping("/projects/{projectId}/status")
-//    public ResponseEntity<ResponseMessage<String>> getProjectStatus(@PathVariable Long projectId) {
-//        String status = clientService.getProjectStatus(projectId);
-//        return ResponseEntity.ok(new ResponseMessage<>(200, "SUCCESS", "Project status fetched successfully", status));
-//    }
     @PreAuthorize("hasRole('CLIENT')")
     @GetMapping("/projects/{projectId}/status")
     public ResponseEntity<ResponseMessage<ProjectStatus>> getProjectStatus(

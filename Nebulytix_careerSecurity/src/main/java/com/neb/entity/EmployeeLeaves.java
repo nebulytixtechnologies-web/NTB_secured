@@ -3,12 +3,11 @@ package com.neb.entity;
 
 
 import java.time.LocalDate;
-import com.neb.util.EmployeeLeaveType; // ✔ correct package
-
-
 
 import com.neb.util.ApprovalStatus;
+import com.neb.util.EmployeeLeaveType; // ✔ correct package
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -38,9 +37,11 @@ public class EmployeeLeaves {
 	private Employee employee;
 	
 	@Enumerated(EnumType.STRING)
+	@Column(length = 20, nullable = false)
 	private EmployeeLeaveType leaveType;
 	
 	@Enumerated(EnumType.STRING)
+	@Column(length = 20, nullable = false)
 	private ApprovalStatus leaveStatus = ApprovalStatus.PENDING;
 	
 	private LocalDate startDate;

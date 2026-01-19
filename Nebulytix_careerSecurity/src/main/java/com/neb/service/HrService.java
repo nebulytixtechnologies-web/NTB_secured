@@ -3,6 +3,7 @@ package com.neb.service;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.neb.dto.EmployeeRegulationDTO;
 import com.neb.dto.AddJobRequestDto;
 import com.neb.dto.AssignLeaveBalanceDTO;
 import com.neb.dto.EmployeeBankDetailsRequest;
@@ -59,5 +60,9 @@ public interface HrService {
 	 public TodayAttendanceCountDTO todayAttendanceCount();
 	public String disableEmp(Long id);
 	public String enableEmp(Long id);
+	public String regulationRejectOrApproval(Long id, LocalDate misPunchDate,
+			ApprovalStatus status);
+	public List<EmployeeRegulationDTO> regulation(ApprovalStatus status) ;
+	
 
 }

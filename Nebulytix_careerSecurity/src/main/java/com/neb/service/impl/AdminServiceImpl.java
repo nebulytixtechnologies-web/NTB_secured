@@ -268,13 +268,13 @@ public class AdminServiceImpl implements AdminService{
 	                "User must be disabled before deleting client with id: " + id);
 	    }
 
-	    // 🔴 Break FK relation
+	    //  Break FK relation
 	    client.setUser(null);
 
-	    // 1️⃣ delete client (child)
+	    //  delete client (child)
 	    clientRepo.delete(client);
 
-	    // 2️⃣ delete user (parent)
+	    //  delete user (parent)
 	    if (user != null) {
 	        usersRepository.delete(user);
 	    }

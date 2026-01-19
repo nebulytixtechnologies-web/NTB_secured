@@ -38,7 +38,7 @@ public class ScheduleController {
     @Autowired
     private ScheduleService scheduleService;
 
-    // ✅ Create a new schedule
+    
     @PostMapping
     public ResponseEntity<ScheduleDTO> createSchedule(@RequestBody ScheduleDTO dto) {
         Schedule schedule = new Schedule();
@@ -59,15 +59,6 @@ public class ScheduleController {
         return ResponseEntity.ok(response);
     }
 
-	/*
-	 * // ✅ Get all schedules
-	 * 
-	 * @GetMapping public ResponseEntity<List<ScheduleDTO>> getAllSchedules() {
-	 * List<ScheduleDTO> schedules = scheduleService.getAllSchedules() .stream()
-	 * .map(this::convertToDTO) .collect(Collectors.toList()); return
-	 * ResponseEntity.ok(schedules); }
-	 */
-    // ✅ Get schedules by employee ID
     @GetMapping("/employee/{employeeId}")
     public ResponseEntity<List<ScheduleDTO>> getSchedulesByEmployee(@PathVariable Long employeeId) {
         List<ScheduleDTO> schedules = scheduleService.getSchedulesByEmployee(employeeId)
@@ -76,15 +67,6 @@ public class ScheduleController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(schedules);
     }
-
-	
-	/* // ✅ Delete schedule by ID
-	 * 
-	 * @DeleteMapping("/{id}") public ResponseEntity<Void>
-	 * deleteSchedule(@PathVariable Long id) { scheduleService.deleteSchedule(id);
-	 * return ResponseEntity.noContent().build(); }
-	 */
-
     // ✅ Convert Entity to DTO
     private ScheduleDTO convertToDTO(Schedule schedule) {
         ScheduleDTO dto = new ScheduleDTO();
