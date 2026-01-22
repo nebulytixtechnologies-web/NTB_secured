@@ -1,24 +1,24 @@
 package com.neb.service;
 
+
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
-import com.neb.dto.EmployeeRegulationDTO;
+import com.neb.constants.Role;
 import com.neb.dto.AddJobRequestDto;
 import com.neb.dto.AssignLeaveBalanceDTO;
-import com.neb.dto.EmployeeBankDetailsRequest;
-import com.neb.dto.EmployeeBankDetailsResponse;
 import com.neb.dto.EmployeeDetailsResponseDto;
 import com.neb.dto.EmployeeLeaveBalanceDTO;
 import com.neb.dto.EmployeeLeaveDTO;
 import com.neb.dto.EmployeeMonthlyReportDTO;
+import com.neb.dto.EmployeeRegulationDTO;
 import com.neb.dto.JobDetailsDto;
 import com.neb.dto.PayslipDto;
 import com.neb.dto.TodayAttendanceCountDTO;
-import com.neb.dto.employee.UpdateEmployeeRequestDto;
-import com.neb.dto.employee.UpdateEmployeeResponseDto;
 import com.neb.dto.salary.SalaryRequestDto;
 import com.neb.dto.salary.SalaryResponseDto;
+import com.neb.entity.Employee;
 import com.neb.entity.JobApplication;
 import com.neb.util.ApprovalStatus;
 
@@ -63,6 +63,9 @@ public interface HrService {
 	public String regulationRejectOrApproval(Long id, LocalDate misPunchDate,
 			ApprovalStatus status);
 	public List<EmployeeRegulationDTO> regulation(ApprovalStatus status) ;
+	
+	public List<EmployeeDetailsResponseDto> getEmployeeList();
+
 	
 
 }

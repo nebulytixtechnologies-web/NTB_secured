@@ -24,20 +24,19 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.neb.dto.EmployeeDTO;
 import com.neb.dto.EmployeeDetailsResponseDto;
-import com.neb.dto.EmployeeResponseDto;
 import com.neb.dto.GeneratePayslipRequest;
 import com.neb.dto.PayslipDto;
 import com.neb.dto.ProjectResponseDto;
+import com.neb.dto.ResponseDTO;
 import com.neb.dto.ResponseMessage;
 import com.neb.dto.UpdateProjectRequestDto;
 import com.neb.dto.WorkResponseDto;
-import com.neb.dto.client.ClientDto;
 import com.neb.dto.client.ClientProfileDto;
 import com.neb.dto.client.UpdateClientRequest;
 import com.neb.dto.employee.EmployeeProfileDto;
 import com.neb.dto.employee.UpdateEmployeeRequestDto;
-import com.neb.dto.employee.UpdateEmployeeResponseDto;
 import com.neb.dto.project.AddProjectRequestDto;
 import com.neb.dto.project.ProjectsResponseDto;
 import com.neb.dto.user.AdminProfileDto;
@@ -280,7 +279,7 @@ public class AdminController {
 	    
 	    @PreAuthorize("hasRole('ADMIN')")
 	    @PutMapping("/{projectId}/status")
-	    public ResponseEntity<ProjectResponseDto> updateProjectStatus(@PathVariable Long projectId,@RequestParam String status) {
+	    public ResponseEntity<ProjectResponseDto> updateProjectStatus(@PathVariable Long projectId,@RequestParam ProjectStatus status) {
             ProjectResponseDto updatedProject = projectService.updateProjectStatus(projectId, status);
 	        return ResponseEntity.ok(updatedProject);
 	    }
@@ -314,4 +313,5 @@ public class AdminController {
             ClientProfileDto updateClient = adminService.updateClient(clientId, req);
             return ResponseEntity.ok(new ResponseMessage<>(200, "OK", "Client updated successfully",updateClient));
 	    }
+	   
 }

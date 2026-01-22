@@ -187,20 +187,25 @@ public class HrController {
         return ResponseEntity.ok(new ResponseMessage<>(HttpStatus.OK.value(), HttpStatus.OK.name(), "All jobs fetched successfully", allJobs));
     }
    
-    //============================ Daily Report ==========================
     @PostMapping("/dailyReport/generate")
     public ResponseEntity<ResponseMessage<String>> generateDailyReport() {
         LocalDate d = LocalDate.now();
         String fileUrlOrMsg = service.generateDailyReport(d);
+
         if (fileUrlOrMsg == null) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage<>(500, "ERROR", "Failed to generate report", null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseMessage<>(500, "ERROR", "Failed to generate report", null));
         }
+
         if (fileUrlOrMsg.startsWith("/reports/")) {
-            return ResponseEntity.ok(new ResponseMessage<>(200, "OK", "Report generated", fileUrlOrMsg));
+            return ResponseEntity.ok(
+                    new ResponseMessage<>(200, "OK", "Report generated", fileUrlOrMsg));
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage<>(404, "NOT_FOUND", fileUrlOrMsg, null));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseMessage<>(404, "NOT_FOUND", fileUrlOrMsg, null));
         }
     }
+
 
     @GetMapping("/dailyReport/url")
     public ResponseEntity<ResponseMessage<String>> getDailyReportUrl() {
@@ -357,6 +362,11 @@ public class HrController {
 
 	    return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+    @GetMapping("/getEmpList")
+    public ResponseEntity<ResponseMessage<List<EmployeeDetailsResponseDto>>> getEmployeeList() {
+        List<EmployeeDetailsResponseDto> employeeList = service.getEmployeeList();
+        return ResponseEntity.ok(new ResponseMessage<>(HttpStatus.OK.value(), HttpStatus.OK.name(), "All Employee fetched successfully", employeeList));
+    }
 	 
 
 }

@@ -346,16 +346,16 @@ public class AdminServiceImpl implements AdminService{
 	}
 
 
-	@Override
-	public byte[] generateDailyReport(LocalDate date) throws Exception {
-	    List<Work> works = workRepo.findBySubmittedDate(date);
-	    if (works == null || works.isEmpty()) {
-	        // error handling
-	    }
-	    ReportGeneratorPdf pdfGenerator = new ReportGeneratorPdf();
-	    byte[] dailyReportPDF = pdfGenerator.generateReportPDF(works, date);
-	    return dailyReportPDF;
-	}
+//	@Override
+//	public byte[] generateDailyReport(LocalDate date) throws Exception {
+//	    List<Work> works = workRepo.findBySubmittedDate(date);
+//	    if (works == null || works.isEmpty()) {
+//	        // error handling
+//	    }
+//	    ReportGeneratorPdf pdfGenerator = new ReportGeneratorPdf();
+//	    byte[] dailyReportPDF = pdfGenerator.generateReportPDF(works, date);
+//	    return dailyReportPDF;
+//	}
 	
 	@Override
 	public EmployeeDetailsResponseDto updateHrDetails(Long id, UpdateEmployeeRequestDto updateReq) {
@@ -584,6 +584,12 @@ public class AdminServiceImpl implements AdminService{
         client.setUpdatedDate(LocalDate.now());
         Client save = clientRepo.save(client);
        return mapper.map(save, ClientProfileDto.class);
+	}
+
+	@Override
+	public byte[] generateDailyReport(LocalDate date) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

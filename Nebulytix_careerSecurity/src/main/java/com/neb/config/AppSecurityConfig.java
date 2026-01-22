@@ -53,6 +53,7 @@ public class AppSecurityConfig {
 	        .authenticationProvider(authProvider())
 	        .authorizeHttpRequests(req -> req
 	            .requestMatchers("/h2-console/**").permitAll()
+	            .requestMatchers("/reports/daily/**").permitAll()
 	            .requestMatchers(
 	                    "/api/auth/forgot-password",
 	                    "/api/auth/verify-forgot-otp",

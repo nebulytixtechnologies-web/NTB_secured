@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -20,13 +21,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.neb.dto.EmployeeRegulationDTO;
+import com.neb.constants.Role;
 import com.neb.dto.AddJobRequestDto;
 import com.neb.dto.AssignLeaveBalanceDTO;
 import com.neb.dto.EmployeeDetailsResponseDto;
 import com.neb.dto.EmployeeLeaveBalanceDTO;
 import com.neb.dto.EmployeeLeaveDTO;
 import com.neb.dto.EmployeeMonthlyReportDTO;
+import com.neb.dto.EmployeeRegulationDTO;
 import com.neb.dto.JobDetailsDto;
 import com.neb.dto.PayslipDto;
 import com.neb.dto.TodayAttendanceCountDTO;
@@ -61,7 +63,6 @@ import com.neb.repo.EmployeeMontlyReportRepo;
 import com.neb.repo.EmployeeRepository;
 import com.neb.repo.EmployeeSalaryRepository;
 import com.neb.repo.JobApplicationRepository;
-
 import com.neb.repo.JobRepository;
 import com.neb.repo.MisPunchRequestRepo;
 import com.neb.repo.PayslipRepository;
@@ -115,8 +116,7 @@ public class HrServiceImpl implements HrService {
     
     @Autowired
     private ProjectRepository projectRepo;
-//    @Autowired
-//    private MisPunchRequestRepo MisPunchRequestRepo;
+
     @Autowired
     private MisPunchRequestRepo MisPunchRequestRepo;
 
@@ -244,18 +244,35 @@ public class HrServiceImpl implements HrService {
         jobRepository.delete(job);
         return "Job deleted successfully";
     }
-
-    // ======================= DAILY REPORT =========================
     @Override
     public String generateDailyReport(LocalDate reportDate) {
-        List<DailyReport> reports = dailyReportRepository.findByReportDate(reportDate);
-        if (reports.isEmpty()) return "No daily reports found for date: " + reportDate;
+
+        // ✅ USE FETCH JOIN METHOD
+        List<DailyReport> reports =
+                dailyReportRepository.findReportsWithEmployee(reportDate);
+
+        if (reports.isEmpty()) {
+            return "No daily reports found for date: " + reportDate;
+        }
 
         try {
-            byte[] pdfBytes = new ReportGeneratorPdf().generateDailyReportForEmployees(reports, reportDate);
+            
+            System.out.println("Daily report path = " + dailyReportFolderPath);
+            System.out.println("Employee name check = " +
+                    reports.get(0).getEmployee().getFirstName());
 
-            Path folder = Paths.get(dailyReportFolderPath);
-            if (!Files.exists(folder)) Files.createDirectories(folder);
+            byte[] pdfBytes =
+                    new ReportGeneratorPdf()
+                            .generateDailyReportForEmployees(reports, reportDate);
+
+            // ✅ SAFE PATH HANDLING
+            Path folder = Paths.get(dailyReportFolderPath)
+                               .toAbsolutePath()
+                               .normalize();
+
+            if (Files.notExists(folder)) {
+                Files.createDirectories(folder);
+            }
 
             String fileName = "daily-report-" + reportDate + ".pdf";
             Path filePath = folder.resolve(fileName);
@@ -265,15 +282,19 @@ public class HrServiceImpl implements HrService {
             }
 
             String fileUrl = "/reports/daily/" + fileName;
+
             reports.forEach(r -> r.setDailyReportUrl(fileUrl));
             dailyReportRepository.saveAll(reports);
 
             return fileUrl;
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new CustomeException("Failed to generate PDF: " + e.getMessage());
         }
     }
+
+
 
     @Override
     public String getDailyReportUrl(LocalDate reportDate) {
@@ -798,7 +819,23 @@ public class HrServiceImpl implements HrService {
 			            .map(EmployeeRegulationDTO::new)
 			            .toList();
 			}
+		 @Override
+		 public List<EmployeeDetailsResponseDto> getEmployeeList() {
+
+		     Set<Role> excludedRoles = Set.of(Role.ROLE_ADMIN);
+
+		     List<Employee> employees = empRepo.findEmployeesExcludingRoles(excludedRoles);
+
+		     if (employees == null || employees.isEmpty()) {
+		         throw new CustomeException("No employees found");
+		     }
+
+		     return employees.stream()
+		             .map(emp -> mapper.map(emp, EmployeeDetailsResponseDto.class))
+		             .collect(Collectors.toList());
+		 }
 
 
+		
 }
 

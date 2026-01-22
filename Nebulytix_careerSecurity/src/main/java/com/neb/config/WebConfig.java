@@ -19,9 +19,10 @@ public class WebConfig implements WebMvcConfigurer {
             .addResourceHandler("/uploads/resumes/**")
             .addResourceLocations("file:E:/NEBULYTIX TECHNOLOGIES/application resumes/");
         
+
         registry
         .addResourceHandler("/reports/daily/**")
-        .addResourceLocations("file:E:/NEBULYTIX TECHNOLOGIES/dailyReports/");
+        .addResourceLocations("file:D:/NEBULYTIX TECHNOLOGIES/dailyReports/");
         
         registry
         .addResourceHandler("/uploads/profiles/**")
@@ -30,7 +31,7 @@ public class WebConfig implements WebMvcConfigurer {
         .addResourceHandler("/uploads/projects/**")
         .addResourceLocations("file:D:/NEBULYTIX TECHNOLOGIES/project-documents/");
        
-        
+         
     }
 
     @Override

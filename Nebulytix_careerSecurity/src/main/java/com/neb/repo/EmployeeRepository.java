@@ -3,11 +3,13 @@ package com.neb.repo;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.neb.constants.Role;
 import com.neb.entity.Client;
 import com.neb.entity.Employee;
 import com.neb.entity.Project;
@@ -93,6 +95,16 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
               WHERE e.id = :employeeId
           """)
         public  Optional<Employee> findEmployeeFullDetails(@Param("employeeId") Long employeeId);
+          @Query("""
+        		  SELECT DISTINCT e
+        		  FROM Employee e
+        		  JOIN e.user u
+        		  JOIN u.roles r
+        		  WHERE r NOT IN :roles
+        		  """)
+        		  List<Employee> findEmployeesExcludingRoles(@Param("roles") Set<Role> roles);
+
+
 
 
 
